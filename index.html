@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="styles.css" />
-  <noscript><style>.reveal{opacity:1;transform:none}.brand-emblem{display:block!important}</style></noscript>
+  <noscript><style>.reveal{opacity:1;transform:none}.brand-emblem{display:block!important}.step{display:block!important;margin-bottom:30px}.step-nav,.skip-row,.progress{display:none!important}</style></noscript>
 </head>
 <body>
   <div class="page-glow" aria-hidden="true"></div>
@@ -71,81 +71,183 @@
 
     <section class="card reveal" aria-labelledby="form-heading">
       <h2 id="form-heading" class="card-title">Service Feedback</h2>
-      <p class="card-sub">Takes less than a minute. Every response is read.</p>
+      <p class="card-sub">Five quick steps — about 30 seconds. Honest answers, good or tough, are welcome.</p>
 
       <form id="feedback-form" novalidate>
-        <!-- Overall rating -->
-        <div class="field">
-          <span class="label" id="rating-label">Overall experience</span>
-          <div class="stars" role="group" aria-labelledby="rating-label" id="stars">
-            <button type="button" class="star" data-value="1" aria-label="Rate overall experience 1 of 5" aria-pressed="false">&#9733;</button>
-            <button type="button" class="star" data-value="2" aria-label="Rate overall experience 2 of 5" aria-pressed="false">&#9733;</button>
-            <button type="button" class="star" data-value="3" aria-label="Rate overall experience 3 of 5" aria-pressed="false">&#9733;</button>
-            <button type="button" class="star" data-value="4" aria-label="Rate overall experience 4 of 5" aria-pressed="false">&#9733;</button>
-            <button type="button" class="star" data-value="5" aria-label="Rate overall experience 5 of 5" aria-pressed="false">&#9733;</button>
-          </div>
-        </div>
+        <div class="progress" aria-hidden="true"><span class="progress-fill" id="progress-fill" style="width:20%"></span></div>
 
-        <!-- Category chips -->
-        <div class="field">
-          <span class="label" id="chips-label">What stands out? (select any)</span>
-          <div class="chips" role="group" aria-labelledby="chips-label" id="chips">
-            <button type="button" class="chip" data-value="Worship" aria-pressed="false">Worship</button>
-            <button type="button" class="chip" data-value="The Word" aria-pressed="false">The Word</button>
-            <button type="button" class="chip" data-value="Production &amp; Sound" aria-pressed="false">Production &amp; Sound</button>
-            <button type="button" class="chip" data-value="Welcome &amp; Hospitality" aria-pressed="false">Welcome &amp; Hospitality</button>
-            <button type="button" class="chip" data-value="Youth Activities" aria-pressed="false">Youth Activities</button>
-            <button type="button" class="chip" data-value="Logistics &amp; Venue" aria-pressed="false">Logistics &amp; Venue</button>
-            <button type="button" class="chip" data-value="Other" aria-pressed="false">Other</button>
-          </div>
-        </div>
+        <!-- Step 1: service rating -->
+        <section class="step" data-step="0" aria-labelledby="step1-title">
+          <p class="step-kicker">Step 1 of 5 · Service rating</p>
+          <h3 class="step-title" id="step1-title" tabindex="-1">How was the service?</h3>
+          <p class="step-sub">Tap the one that fits. Optional — you can skip this.</p>
 
-        <div class="rule rule--soft" aria-hidden="true"></div>
-
-        <!-- Text responses -->
-        <div class="field">
-          <label class="label" for="liked">What moved you today?</label>
-          <textarea id="liked" name="liked" rows="4" placeholder="A moment, a worship song, a word that stayed with you…"></textarea>
-        </div>
-
-        <div class="field">
-          <label class="label" for="disliked">What didn't land for you? <span class="optional">(optional)</span></label>
-          <textarea id="disliked" name="disliked" rows="3" placeholder="Be honest — we can handle it."></textarea>
-        </div>
-
-        <div class="field">
-          <label class="label" for="suggestions">Your suggestions <span class="optional">(optional)</span></label>
-          <textarea id="suggestions" name="suggestions" rows="3" placeholder="One change that would make services better for you…"></textarea>
-        </div>
-
-        <div class="field">
-          <label class="label" for="expectations">Your expectations for next service <span class="optional">(optional)</span></label>
-          <textarea id="expectations" name="expectations" rows="3" placeholder="What are you hoping for next time?"></textarea>
-        </div>
-
-        <div class="rule rule--soft" aria-hidden="true"></div>
-
-        <!-- Optional contact -->
-        <div class="field">
-          <p class="note">Sharing your name and contact is optional — leave them blank unless you'd like a reply.</p>
-          <div class="contact-grid">
-            <div>
-              <label class="label" for="name">Name <span class="optional">(optional)</span></label>
-              <input type="text" id="name" name="name" autocomplete="name" placeholder="Your name" />
-            </div>
-            <div>
-              <label class="label" for="contact">Email or phone <span class="optional">(optional)</span></label>
-              <input type="text" id="contact" name="contact" autocomplete="email" placeholder="you@email.com or 080…" />
+          <div class="field">
+            <span class="label" id="rating-label">Overall experience</span>
+            <div class="rating-grid" role="radiogroup" aria-labelledby="rating-label" id="rating-grid">
+              <label class="rating-opt">
+                <input type="radio" name="rating" value="1" />
+                <span class="rating-face" aria-hidden="true">😔</span>
+                <span class="rating-num">1</span>
+                <span class="rating-word">drained</span>
+              </label>
+              <label class="rating-opt">
+                <input type="radio" name="rating" value="2" />
+                <span class="rating-face" aria-hidden="true">😕</span>
+                <span class="rating-num">2</span>
+                <span class="rating-word">not for me</span>
+              </label>
+              <label class="rating-opt">
+                <input type="radio" name="rating" value="3" />
+                <span class="rating-face" aria-hidden="true">🙂</span>
+                <span class="rating-num">3</span>
+                <span class="rating-word">it was okay</span>
+              </label>
+              <label class="rating-opt">
+                <input type="radio" name="rating" value="4" />
+                <span class="rating-face" aria-hidden="true">😄</span>
+                <span class="rating-num">4</span>
+                <span class="rating-word">really good</span>
+              </label>
+              <label class="rating-opt">
+                <input type="radio" name="rating" value="5" />
+                <span class="rating-face" aria-hidden="true">🤩</span>
+                <span class="rating-num">5</span>
+                <span class="rating-word">incredible</span>
+              </label>
             </div>
           </div>
+        </section>
+
+        <!-- Step 2: what stood out -->
+        <section class="step" data-step="1" aria-labelledby="step2-title" hidden>
+          <p class="step-kicker">Step 2 of 5 · What stood out</p>
+          <h3 class="step-title" id="step2-title" tabindex="-1">What stood out today?</h3>
+          <p class="step-sub">Tap anything that hit — as many as you like. A word or two below is plenty.</p>
+
+          <div class="field">
+            <span class="label" id="chips-label">What stands out? (select any)</span>
+            <div class="chips" role="group" aria-labelledby="chips-label" id="chips-standout">
+              <button type="button" class="chip" data-value="Worship" aria-pressed="false">Worship</button>
+              <button type="button" class="chip" data-value="The Word" aria-pressed="false">The Word</button>
+              <button type="button" class="chip" data-value="Production &amp; Sound" aria-pressed="false">Production &amp; Sound</button>
+              <button type="button" class="chip" data-value="Welcome &amp; Hospitality" aria-pressed="false">Welcome &amp; Hospitality</button>
+              <button type="button" class="chip" data-value="Youth Activities" aria-pressed="false">Youth Activities</button>
+              <button type="button" class="chip" data-value="Logistics &amp; Venue" aria-pressed="false">Logistics &amp; Venue</button>
+              <button type="button" class="chip" data-value="Other" aria-pressed="false">Other</button>
+            </div>
+          </div>
+
+          <div class="field">
+            <label class="label" for="liked">What moved you today? <span class="optional">(optional)</span></label>
+            <textarea id="liked" name="liked" rows="3" placeholder="A moment, a worship song, a word that stayed with you…"></textarea>
+          </div>
+        </section>
+
+        <!-- Step 3: what could be improved -->
+        <section class="step" data-step="2" aria-labelledby="step3-title" hidden>
+          <p class="step-kicker">Step 3 of 5 · What could be improved</p>
+          <h3 class="step-title" id="step3-title" tabindex="-1">What could be better?</h3>
+          <p class="step-sub">Honest helps us more than polite — and a tap or one line is plenty.</p>
+
+          <div class="field">
+            <span class="label" id="improve-label">What didn't land for you? (select any)</span>
+            <div class="chips" role="group" aria-labelledby="improve-label" id="chips-improve" data-exclusive="true">
+              <button type="button" class="chip" data-none="true" data-value="Nothing to improve" aria-pressed="false">Nothing to improve</button>
+              <button type="button" class="chip" data-value="Sound/mic" aria-pressed="false">Sound/mic</button>
+              <button type="button" class="chip" data-value="Length" aria-pressed="false">Length</button>
+              <button type="button" class="chip" data-value="Seating/venue" aria-pressed="false">Seating/venue</button>
+              <button type="button" class="chip" data-value="Welcome" aria-pressed="false">Welcome</button>
+              <button type="button" class="chip" data-value="Youth activities" aria-pressed="false">Youth activities</button>
+              <button type="button" class="chip" data-value="Start time" aria-pressed="false">Start time</button>
+              <button type="button" class="chip" data-value="The message" aria-pressed="false">The message</button>
+              <button type="button" class="chip" data-value="Other" aria-pressed="false">Other</button>
+            </div>
+          </div>
+
+          <div class="field">
+            <label class="label" for="disliked">Anything more? <span class="optional">(optional)</span></label>
+            <textarea id="disliked" name="disliked" rows="2" placeholder="Be honest — we can handle it."></textarea>
+          </div>
+        </section>
+
+        <!-- Step 4: what you'd like to see next -->
+        <section class="step" data-step="3" aria-labelledby="step4-title" hidden>
+          <p class="step-kicker">Step 4 of 5 · What you'd like to see next</p>
+          <h3 class="step-title" id="step4-title" tabindex="-1">What would you love to see?</h3>
+          <p class="step-sub">Ideas for future services — tap any, or add your own.</p>
+
+          <div class="field">
+            <span class="label" id="ideas-label">What should we try next? (select any)</span>
+            <div class="chips" role="group" aria-labelledby="ideas-label" id="chips-ideas">
+              <button type="button" class="chip" data-value="Worship nights" aria-pressed="false">Worship nights</button>
+              <button type="button" class="chip" data-value="Small groups" aria-pressed="false">Small groups</button>
+              <button type="button" class="chip" data-value="Games/socials" aria-pressed="false">Games/socials</button>
+              <button type="button" class="chip" data-value="Outreach" aria-pressed="false">Outreach</button>
+              <button type="button" class="chip" data-value="Bible study" aria-pressed="false">Bible study</button>
+              <button type="button" class="chip" data-value="Fasting/prayer" aria-pressed="false">Fasting/prayer</button>
+              <button type="button" class="chip" data-value="More youth slots" aria-pressed="false">More youth slots</button>
+              <button type="button" class="chip" data-value="Other" aria-pressed="false">Other</button>
+            </div>
+          </div>
+
+          <div class="field">
+            <label class="label" for="idea-custom">Add your own idea <span class="optional">(optional)</span></label>
+            <input type="text" id="idea-custom" name="idea-custom" placeholder="e.g. a testimony night…" />
+          </div>
+
+          <div class="field">
+            <label class="label" for="suggestions">Anything else? <span class="optional">(optional)</span></label>
+            <textarea id="suggestions" name="suggestions" rows="2" placeholder="One change that would make services better for you…"></textarea>
+          </div>
+        </section>
+
+        <!-- Step 5: details + review + submit -->
+        <section class="step" data-step="4" aria-labelledby="step5-title" hidden>
+          <p class="step-kicker">Step 5 of 5 · Details — all optional</p>
+          <h3 class="step-title" id="step5-title" tabindex="-1">Last step — anything else?</h3>
+          <p class="step-sub">Skip what you don't want to share, then hit send.</p>
+
+          <div class="review" id="review" hidden>
+            <span class="label">Your answers so far</span>
+            <ul class="review-list" id="review-list"></ul>
+            <p class="note" id="review-hint">Tap Back to change anything.</p>
+          </div>
+
+          <div class="field">
+            <p class="note">Sharing your name and contact is optional — leave them blank unless you'd like a reply.</p>
+            <div class="contact-grid">
+              <div>
+                <label class="label" for="name">Name <span class="optional">(optional)</span></label>
+                <input type="text" id="name" name="name" autocomplete="name" placeholder="Your name" />
+              </div>
+              <div>
+                <label class="label" for="contact">Email or phone <span class="optional">(optional)</span></label>
+                <input type="text" id="contact" name="contact" autocomplete="email" placeholder="you@email.com or 080…" />
+              </div>
+            </div>
+          </div>
+
+          <div class="field">
+            <label class="label" for="expectations">Your expectations for next service <span class="optional">(optional)</span></label>
+            <textarea id="expectations" name="expectations" rows="2" placeholder="What are you hoping for next time?"></textarea>
+          </div>
+
+          <div class="alert" id="form-error" role="alert" hidden></div>
+
+          <button type="submit" class="submit" id="submit-btn">
+            <span class="submit-text">Send Feedback</span>
+            <span class="spinner" aria-hidden="true"></span>
+          </button>
+        </section>
+
+        <div class="step-nav" id="step-nav">
+          <button type="button" class="btn btn--back" id="back-btn" hidden>Back</button>
+          <button type="button" class="btn btn--next" id="next-btn">Next</button>
         </div>
-
-        <div class="alert" id="form-error" role="alert" hidden></div>
-
-        <button type="submit" class="submit" id="submit-btn">
-          <span class="submit-text">Send Feedback</span>
-          <span class="spinner" aria-hidden="true"></span>
-        </button>
+        <div class="skip-row" id="skip-row">
+          <button type="button" class="skip-btn" id="skip-btn">Skip this step</button>
+        </div>
       </form>
 
       <!-- Success state -->
@@ -162,7 +264,7 @@
             </linearGradient>
           </defs>
         </svg>
-        <h2 class="success-title">Thank you for sharing</h2>
+        <h2 class="success-title" tabindex="-1">Thank you for sharing</h2>
         <p class="success-sub">Your feedback helps us plan the next service with you in mind.</p>
         <button type="button" class="submit submit--ghost" id="reset-btn">Send another response</button>
       </div>

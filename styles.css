@@ -188,39 +188,222 @@ input[type="text"]:focus-visible {
   box-shadow: 0 0 0 3px rgba(232, 199, 122, 0.22);
 }
 
-/* ---------- Stars ---------- */
+/* ---------- Progress ---------- */
 
-.stars {
-  display: flex;
-  gap: 4px;
+.progress {
+  height: 5px;
+  margin: 0 0 24px;
+  border-radius: 999px;
+  background: rgba(154, 163, 178, 0.16);
+  overflow: hidden;
 }
 
-.star {
-  appearance: none;
+.progress-fill {
+  display: block;
+  height: 100%;
+  width: 20%;
+  border-radius: inherit;
+  background: var(--gold-grad);
+  transition: width 0.4s ease;
+}
+
+/* ---------- Steps ---------- */
+
+.step:not([hidden]) {
+  animation: step-in 0.28s ease both;
+}
+
+@keyframes step-in {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: none; }
+}
+
+.step-kicker {
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--gold-2);
+  margin: 0 0 8px;
+}
+
+.step-title {
+  font-family: "Cormorant Garamond", Georgia, serif;
+  font-size: 1.6rem;
+  font-weight: 600;
+  line-height: 1.15;
+  margin: 0 0 6px;
+}
+
+.step-title:focus-visible {
+  outline: 2px solid rgba(232, 199, 122, 0.7);
+  outline-offset: 4px;
+  border-radius: 6px;
+}
+
+.step-sub {
+  color: var(--muted);
+  font-size: 0.92rem;
+  margin: 0 0 22px;
+}
+
+.step-nav {
+  display: flex;
+  gap: 10px;
+  margin-top: 26px;
+}
+
+.btn {
+  min-height: 50px;
+  padding: 0 22px;
+  border-radius: 14px;
+  font: inherit;
+  font-weight: 600;
+  font-size: 0.86rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: border-color 0.18s ease, box-shadow 0.2s ease, transform 0.15s ease;
+}
+
+.btn:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--bg), 0 0 0 6px rgba(232, 199, 122, 0.65);
+}
+
+.btn--back {
+  border: 1px solid rgba(154, 163, 178, 0.35);
+  background: transparent;
+  color: var(--text);
+}
+
+.btn--back:hover {
+  border-color: rgba(232, 199, 122, 0.5);
+  color: var(--gold-2);
+}
+
+.btn--next {
+  flex: 1;
+  border: 0;
+  background: var(--gold-grad);
+  color: #171105;
+}
+
+.btn--next:hover {
+  box-shadow: 0 10px 30px rgba(232, 199, 122, 0.28);
+  transform: translateY(-1px);
+}
+
+.btn--next:active {
+  transform: translateY(0);
+}
+
+.skip-row {
+  display: flex;
+  justify-content: center;
+  margin-top: 6px;
+}
+
+.skip-row[hidden] {
+  display: none;
+}
+
+.skip-btn {
   background: none;
   border: 0;
-  color: rgba(154, 163, 178, 0.35);
-  font-size: 1.9rem;
-  line-height: 1;
-  min-width: 48px;
-  min-height: 48px;
+  color: var(--muted);
+  font: inherit;
+  font-size: 0.85rem;
+  text-decoration: underline;
+  text-underline-offset: 3px;
   cursor: pointer;
-  padding: 0;
-  transition: color 0.15s ease, transform 0.15s ease;
+  min-height: 44px;
+  padding: 0 14px;
 }
 
-.star:hover {
-  transform: scale(1.12);
-}
-
-.star.is-active {
+.skip-btn:hover {
   color: var(--gold-2);
-  text-shadow: 0 0 14px rgba(232, 199, 122, 0.45);
 }
 
-.star:focus-visible {
+.skip-btn:focus-visible {
   outline: none;
-  border-radius: 10px;
+  border-radius: 8px;
+  box-shadow: 0 0 0 3px rgba(232, 199, 122, 0.4);
+}
+
+/* ---------- Rating ---------- */
+
+.rating-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+
+.rating-opt {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  min-height: 92px;
+  padding: 12px 8px;
+  text-align: center;
+  border: 1px solid rgba(154, 163, 178, 0.25);
+  border-radius: 16px;
+  background: rgba(11, 14, 19, 0.6);
+  cursor: pointer;
+  transition: border-color 0.18s ease, background 0.18s ease, transform 0.18s ease;
+}
+
+/* Keep the radio focusable but visually hidden inside the label */
+.rating-opt input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  border: 0;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.rating-face {
+  font-size: 1.7rem;
+  line-height: 1;
+}
+
+.rating-num {
+  font-size: 0.98rem;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.rating-word {
+  font-size: 0.78rem;
+  color: var(--muted);
+  line-height: 1.25;
+}
+
+.rating-opt:hover {
+  border-color: rgba(232, 199, 122, 0.45);
+}
+
+.rating-opt:has(input:checked) {
+  background: var(--gold-grad);
+  border-color: transparent;
+  transform: translateY(-2px);
+}
+
+.rating-opt:has(input:checked) .rating-num,
+.rating-opt:has(input:checked) .rating-word {
+  color: #1a1405;
+}
+
+.rating-opt:has(input:focus-visible) {
+  border-color: rgba(232, 199, 122, 0.75);
   box-shadow: 0 0 0 3px rgba(232, 199, 122, 0.4);
 }
 
@@ -261,6 +444,67 @@ input[type="text"]:focus-visible {
 .chip:focus-visible {
   outline: none;
   box-shadow: 0 0 0 3px rgba(232, 199, 122, 0.4);
+}
+
+/* ---------- Review summary ---------- */
+
+.review {
+  border: 1px dashed rgba(232, 199, 122, 0.35);
+  background: rgba(11, 14, 19, 0.5);
+  border-radius: 14px;
+  padding: 14px 16px 8px;
+  margin-bottom: 22px;
+}
+
+.review .label {
+  margin-bottom: 12px;
+}
+
+.review-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.review-list li {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 8px 0;
+  border-top: 1px solid rgba(154, 163, 178, 0.14);
+  font-size: 0.88rem;
+}
+
+.review-list li:first-child {
+  border-top: 0;
+  padding-top: 0;
+}
+
+.review-key {
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--gold-2);
+}
+
+.review-val {
+  color: var(--text);
+  overflow-wrap: anywhere;
+}
+
+.review-empty {
+  color: var(--muted);
+  font-style: italic;
+}
+
+.review .note {
+  font-size: 0.8rem;
+  margin: 10px 0 4px;
+}
+
+.review .note[hidden] {
+  display: none;
 }
 
 /* ---------- Contact ---------- */
@@ -465,9 +709,15 @@ input[type="text"]:focus-visible {
   .contact-grid {
     grid-template-columns: 1fr 1fr;
   }
+}
 
-  .star {
-    font-size: 2.2rem;
+@media (min-width: 520px) {
+  .rating-grid {
+    grid-template-columns: repeat(5, 1fr);
+  }
+
+  .rating-face {
+    font-size: 1.9rem;
   }
 }
 
