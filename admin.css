@@ -17,6 +17,13 @@
   box-sizing: border-box;
 }
 
+/* Class rules like `.gate { display: grid }` out-specify the UA `[hidden]` rule,
+   so JS setting `hidden = true` wouldn't actually hide the element. This guard
+   makes the hidden attribute authoritative everywhere. */
+[hidden] {
+  display: none !important;
+}
+
 body {
   margin: 0;
   min-height: 100vh;
