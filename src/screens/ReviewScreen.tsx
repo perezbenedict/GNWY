@@ -62,11 +62,18 @@ export function ReviewScreen({ answers, submitting, submitFailed, error, onSubmi
               <motion.li
                 key={row.label}
                 variants={{ hidden: { opacity: 0, y: 10 }, show: { opacity: 1, y: 0 } }}
+                whileHover={{ x: 2, transition: { duration: 0.18 } }}
+                className="relative"
               >
+                <motion.span
+                  aria-hidden="true"
+                  className="absolute left-0 top-2 bottom-2 w-[3px] origin-top rounded-full bg-lavender/50"
+                  variants={{ hidden: { scaleY: 0 }, show: { scaleY: 1, transition: { duration: 0.35 } } }}
+                />
                 <button
                   type="button"
                   onClick={() => onEdit(row.step)}
-                  className="flex w-full items-start justify-between gap-4 rounded-2xl border border-lavender/20 bg-surface px-4 py-3.5 text-left transition-colors hover:border-lavender/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-lavender focus-visible:ring-offset-2 focus-visible:ring-offset-midnight"
+                  className="flex w-full items-start justify-between gap-4 rounded-xl border border-lavender/20 bg-surface px-4 py-3.5 text-left transition-colors hover:border-lavender/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-lavender focus-visible:ring-offset-2 focus-visible:ring-offset-midnight"
                 >
                   <span className="shrink-0 text-xs font-semibold uppercase tracking-wide text-muted">
                     {row.label}
@@ -77,7 +84,7 @@ export function ReviewScreen({ answers, submitting, submitFailed, error, onSubmi
             ))}
           </motion.ul>
         ) : (
-          <p className="rounded-2xl border border-lavender/20 bg-surface px-4 py-3.5 text-sm text-muted">
+          <p className="rounded-xl border border-lavender/20 bg-surface px-4 py-3.5 text-sm text-muted">
             Nothing yet — tap a rating or share a thought, then come back here.
           </p>
         )}

@@ -18,8 +18,8 @@ export default {
         card: '2rem',
       },
       fontFamily: {
-        display: ['Fraunces', 'Georgia', 'serif'],
-        body: ['Manrope', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+        display: ['"Playfair Display"', 'Georgia', 'serif'],
+        body: ['Instrument Sans', 'ui-sans-serif', 'system-ui', 'sans-serif'],
       },
     },
   },

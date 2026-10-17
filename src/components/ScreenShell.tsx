@@ -40,18 +40,19 @@ export function ScreenShell({ heading, question, support, progress, children }: 
         ref={headingRef}
         tabIndex={-1}
         variants={slotVariants}
-        className="font-display text-[1.9rem] font-semibold leading-[1.1] tracking-[-0.01em] text-ink focus:outline-none sm:text-[2.4rem]"
+        className="font-display text-[2rem] font-semibold leading-[1.08] tracking-[-0.015em] text-ink focus:outline-none sm:text-[2.6rem]"
       >
         {heading}
       </motion.h1>
       {question && (
         <motion.div variants={slotVariants}>
-          <h2 className="mt-4 bg-gradient-to-br from-[#F5DFA6] via-[#E8C77A] to-[#B8862F] bg-clip-text font-display text-[1.35rem] font-normal italic leading-snug text-transparent sm:text-[1.6rem]">{question}</h2>
+          <h2 className="mt-4 bg-gradient-to-br from-[#F5DFA6] via-[#E8C77A] to-[#B8862F] bg-clip-text font-display text-[1.3rem] font-normal italic leading-snug text-transparent sm:text-[1.55rem]">{question}</h2>
         </motion.div>
       )}
       <motion.p className="mt-3 text-[15px] leading-[1.65] tracking-[0.01em] text-muted" variants={slotVariants}>
         {support}
       </motion.p>
+      <div className="mt-6 h-px w-12 bg-gradient-to-r from-lavender/70 to-transparent" />
       <motion.div className="mt-8" variants={slotVariants}>
         {children}
       </motion.div>

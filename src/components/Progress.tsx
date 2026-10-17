@@ -9,13 +9,14 @@ export function Progress({ step, total }: ProgressProps) {
   return (
     <div className="mb-8">
       <div className="relative mb-2 h-5 w-24 overflow-hidden" aria-live="polite">
-        <AnimatePresence mode="wait" initial={false}>
+        {/* initial={false} removed: Progress remounts per screen, so the step roll plays on mount. */}
+        <AnimatePresence mode="wait">
           <motion.span
             key={step}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.15 }}
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, transition: { duration: 0.15 } }}
+            transition={{ duration: 0.3, ease: 'easeOut' }}
             className="font-display text-[11px] font-semibold uppercase tracking-[0.22em] tabular-nums text-muted"
           >
             {String(step).padStart(2, '0')} / {String(total).padStart(2, '0')}

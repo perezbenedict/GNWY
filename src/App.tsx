@@ -12,18 +12,36 @@ import { NextScreen } from './screens/NextScreen';
 import { ContactScreen } from './screens/ContactScreen';
 import { ReviewScreen } from './screens/ReviewScreen';
 import { SuccessScreen } from './screens/SuccessScreen';
+import { Emblem } from './components/Emblem';
 
 const forwardVariants: Variants = {
-  enter: { opacity: 0, x: 28 },
-  center: { opacity: 1, x: 0 },
-  exit: { opacity: 0, x: -28 },
+  enter: { opacity: 0, x: 72, scale: 0.955, rotate: 1.4, filter: 'blur(10px)' },
+  center: { opacity: 1, x: 0, scale: 1, rotate: 0, filter: 'blur(0px)' },
+  exit: { opacity: 0, x: -56, scale: 0.965, rotate: -1.1, filter: 'blur(8px)' },
 };
 
 const backwardVariants: Variants = {
-  enter: { opacity: 0, x: -28 },
-  center: { opacity: 1, x: 0 },
-  exit: { opacity: 0, x: 28 },
+  enter: { opacity: 0, x: -72, scale: 0.955, rotate: -1.4, filter: 'blur(10px)' },
+  center: { opacity: 1, x: 0, scale: 1, rotate: 0, filter: 'blur(0px)' },
+  exit: { opacity: 0, x: 56, scale: 0.965, rotate: 1.1, filter: 'blur(8px)' },
 };
+
+// Living gold emblem behind every screen; transforms are skipped under reduced motion.
+function BackgroundEmblem() {
+  return (
+    <div aria-hidden className="pointer-events-none fixed inset-0 -z-10 flex items-center justify-center">
+      <div
+        className="absolute h-[80vmin] w-[80vmin] rounded-full"
+        style={{ background: 'radial-gradient(circle, rgba(232,199,122,0.10), transparent 65%)' }}
+      />
+      <motion.div animate={{ rotate: 360 }} transition={{ duration: 140, repeat: Infinity, ease: 'linear' }}>
+        <motion.div animate={{ y: [0, -14, 0] }} transition={{ duration: 11, repeat: Infinity, ease: 'easeInOut' }}>
+          <Emblem className="h-[62vmin] w-[62vmin] max-h-[520px] max-w-[520px] opacity-[0.05]" />
+        </motion.div>
+      </motion.div>
+    </div>
+  );
+}
 
 export default function App() {
   const { answers, step, setAnswer, goTo, clearDraft, reset } = useAnswers();
@@ -78,6 +96,7 @@ export default function App() {
         className="mx-auto flex min-h-[100dvh] w-full max-w-2xl flex-col justify-center overflow-x-clip px-4 pb-12 pt-10 sm:px-8"
         style={{ paddingBottom: 'max(3rem, env(safe-area-inset-bottom))' }}
       >
+        <BackgroundEmblem />
         <SuccessScreen
           onDone={() => {
             setSubmitStatus('idle');
@@ -178,6 +197,7 @@ export default function App() {
       className="mx-auto flex min-h-[100dvh] w-full max-w-2xl flex-col justify-center overflow-x-clip px-4 pb-12 pt-10 sm:px-8"
       style={{ paddingBottom: 'max(3rem, env(safe-area-inset-bottom))' }}
     >
+      <BackgroundEmblem />
       <AnimatePresence mode="wait" initial={false}>
         <motion.div
           key={screenKey}
@@ -186,7 +206,7 @@ export default function App() {
           initial="enter"
           animate="center"
           exit="exit"
-          transition={{ type: 'spring', stiffness: 380, damping: 34, mass: 0.7 }}
+          transition={{ type: 'spring', stiffness: 300, damping: 30, mass: 0.9 }}
         >
           {screen}
         </motion.div>

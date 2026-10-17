@@ -1,10 +1,10 @@
 import { motion } from 'motion/react';
 
 export const primaryButtonClass =
-  'inline-flex min-h-[48px] flex-1 items-center justify-center gap-2 rounded-2xl bg-[linear-gradient(135deg,#F5DFA6,#E8C77A_55%,#B8862F)] px-6 py-3.5 text-[15px] font-bold text-center leading-tight tracking-[0.01em] text-[#171105] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-lavender focus-visible:ring-offset-2 focus-visible:ring-offset-midnight sm:flex-none relative overflow-hidden';
+  'inline-flex min-h-[48px] flex-1 items-center justify-center gap-2 rounded-xl bg-[linear-gradient(135deg,#F5DFA6,#E8C77A_55%,#B8862F)] px-6 py-3.5 text-[14px] font-semibold text-center uppercase leading-tight tracking-[0.14em] text-[#171105] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-lavender focus-visible:ring-offset-2 focus-visible:ring-offset-midnight sm:flex-none relative overflow-hidden';
 
 export const ghostButtonClass =
-  'inline-flex min-h-[48px] items-center justify-center rounded-2xl border border-white/15 px-5 py-3.5 text-[14px] font-semibold text-center leading-tight tracking-[0.02em] text-muted transition-colors hover:border-lavender/60 hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-lavender focus-visible:ring-offset-2 focus-visible:ring-offset-midnight';
+  'inline-flex min-h-[48px] items-center justify-center rounded-xl border border-white/15 px-5 py-3.5 text-[13px] font-semibold text-center uppercase leading-tight tracking-[0.12em] text-muted transition-colors hover:border-lavender/60 hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-lavender focus-visible:ring-offset-2 focus-visible:ring-offset-midnight';
 
 interface NavButtonsProps {
   onBack?: () => void;
@@ -36,7 +36,7 @@ export function NavButtons({ onBack, onNext, nextLabel = 'Next', onSkip, skipLab
             type="button"
             onClick={onNext}
             whileHover={{ y: -1 }}
-            whileTap={{ scale: 0.98 }}
+            whileTap={{ scale: 0.955 }}
             transition={{ type: 'spring', stiffness: 400, damping: 24 }}
             className={primaryButtonClass}
           >

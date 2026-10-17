@@ -28,10 +28,17 @@ export function SuccessScreen({ onDone, onSendAnother }: SuccessScreenProps) {
     >
       <div className="relative mb-6">
         <motion.span
+          aria-hidden="true"
+          className="absolute -left-1 -top-1 h-[72px] w-[72px] rounded-full border border-lavender/25"
+          initial={{ scale: 1, opacity: 0.25 }}
+          animate={{ scale: [1, 1.08, 1], opacity: [0.25, 0.08, 0.25] }}
+          transition={{ duration: 4.5, repeat: Infinity, ease: 'easeInOut' }}
+        />
+        <motion.span
           initial={{ scale: 0.6, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           transition={{ type: 'spring', stiffness: 320, damping: 18 }}
-          className="inline-flex"
+          className="relative inline-flex"
         >
           <CheckCircle2 className="h-16 w-16 text-lime" aria-hidden="true" />
         </motion.span>
