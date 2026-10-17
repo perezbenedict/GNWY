@@ -1,0 +1,6 @@
+name = "gnwy-feedback-site"
+compatibility_date = "2024-09-01"
+
+# Static assets for the public feedback site (form, QR poster, admin vault).
+[assets]
+directory = ".deploy"
