@@ -1,6 +1,6 @@
 "use strict";
 
-const FEEDBACK_API = ''; // paste your Worker URL here, e.g. https://gnwy-feedback.<account>.workers.dev
+const FEEDBACK_API = 'https://gnwy-feedback.perezbenedict007.workers.dev'; // deployed Worker API
 const DRAFT_KEY = 'gnwy-feedback-draft';
 
 const form = document.getElementById('feedback-form');

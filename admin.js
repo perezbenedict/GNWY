@@ -1,4 +1,4 @@
-const FEEDBACK_API = ''; // paste your Worker URL here at the top of admin.js
+const FEEDBACK_API = 'https://gnwy-feedback.perezbenedict007.workers.dev'; // deployed Worker API
 
 const TOKEN_KEY = 'gnwy_admin_token';
 const CONFIG_MESSAGE =

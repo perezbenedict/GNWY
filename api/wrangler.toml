@@ -7,5 +7,5 @@ binding = "DB"
 database_name = "gnwy-feedback"
 database_id = "062cff6b-449c-4738-b1ba-6f9774e2257e"
 
-[vars]
-ADMIN_TOKEN = "REPLACE_WITH_A_LONG_RANDOM_SECRET"
+# ADMIN_TOKEN is set as an encrypted secret, not a var:
+#   echo "<token>" | wrangler secret put ADMIN_TOKEN
