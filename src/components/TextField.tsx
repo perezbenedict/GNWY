@@ -36,7 +36,7 @@ export function TextField({
   const id = useId();
   const base =
     'w-full rounded-2xl border bg-surface px-4 py-3.5 text-base text-ink placeholder:text-muted/70 transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-lavender focus:ring-offset-2 focus:ring-offset-midnight';
-  const state = highlighted ? 'border-lime/70 bg-lime/5' : 'border-white/10 focus:border-lavender';
+  const state = highlighted ? 'border-lavender/70 bg-lavender/10' : 'border-lavender/20 focus:border-lavender';
 
   const handleFocus = (event: FocusEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     // keep the field visible above the on-screen keyboard

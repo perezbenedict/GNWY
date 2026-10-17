@@ -28,7 +28,7 @@ export function ScreenShell({ heading, question, support, progress, children }: 
         {heading}
       </h1>
       {question && (
-        <h2 className="mt-4 font-display text-xl font-semibold text-lavender sm:text-2xl">{question}</h2>
+        <h2 className="mt-4 bg-gradient-to-br from-[#F5DFA6] via-[#E8C77A] to-[#B8862F] bg-clip-text font-display text-2xl font-semibold text-transparent sm:text-3xl">{question}</h2>
       )}
       <p className="mt-3 text-base leading-relaxed text-muted">{support}</p>
       <div className="mt-8">{children}</div>

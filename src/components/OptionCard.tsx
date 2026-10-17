@@ -27,10 +27,10 @@ export function OptionCard({
   const base =
     'flex w-full items-center justify-between gap-3 break-words rounded-card border px-4 py-3.5 text-left text-sm font-medium transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-lavender focus-visible:ring-offset-2 focus-visible:ring-offset-midnight sm:text-base min-h-[48px]';
   const state = selected
-    ? 'border-lavender bg-violet/20 text-ink'
+    ? 'border-lavender bg-lavender/15 text-ink'
     : highlighted
       ? 'border-lime/70 bg-lime/5 text-ink'
-      : 'border-white/10 bg-surface text-ink hover:border-lavender/50';
+      : 'border-lavender/20 bg-surface text-ink hover:border-lavender/50';
 
   return (
     <motion.button

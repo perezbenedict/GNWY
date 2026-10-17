@@ -4,20 +4,21 @@ export default {
   theme: {
     extend: {
       colors: {
-        midnight: '#0B0817',
-        surface: '#120E24',
-        violet: '#7C3AED',
-        lavender: '#A78BFA',
-        lime: '#C6FF4A',
-        yellow: '#FDE68A',
-        ink: '#F4F1FF',
-        muted: '#A9A3C4',
+        midnight: '#0B0E13',
+        surface: '#121722',
+        violet: '#E8C77A',
+        lavender: '#E8C77A',
+        lime: '#E8C77A',
+        yellow: '#F5DFA6',
+        crimson: '#B3223A',
+        ink: '#EDEFF3',
+        muted: '#9AA3B2',
       },
       borderRadius: {
         card: '2rem',
       },
       fontFamily: {
-        display: ['"Space Grotesk"', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+        display: ['"Cormorant Garamond"', 'Georgia', 'serif'],
         body: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
       },
     },

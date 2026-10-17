@@ -58,7 +58,7 @@ export function ReviewScreen({ answers, submitting, submitFailed, error, onSubmi
                 <button
                   type="button"
                   onClick={() => onEdit(row.step)}
-                  className="flex w-full items-start justify-between gap-4 rounded-2xl border border-white/10 bg-surface px-4 py-3.5 text-left transition-colors hover:border-lavender/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-lavender focus-visible:ring-offset-2 focus-visible:ring-offset-midnight"
+                  className="flex w-full items-start justify-between gap-4 rounded-2xl border border-lavender/20 bg-surface px-4 py-3.5 text-left transition-colors hover:border-lavender/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-lavender focus-visible:ring-offset-2 focus-visible:ring-offset-midnight"
                 >
                   <span className="shrink-0 text-xs font-semibold uppercase tracking-wide text-muted">
                     {row.label}
@@ -69,7 +69,7 @@ export function ReviewScreen({ answers, submitting, submitFailed, error, onSubmi
             ))}
           </ul>
         ) : (
-          <p className="rounded-2xl border border-white/10 bg-surface px-4 py-3.5 text-sm text-muted">
+          <p className="rounded-2xl border border-lavender/20 bg-surface px-4 py-3.5 text-sm text-muted">
             Nothing yet — tap a rating or share a thought, then come back here.
           </p>
         )}
