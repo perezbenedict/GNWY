@@ -1,0 +1,30 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    @apply bg-midnight font-body text-ink antialiased;
+  }
+
+  /* Fixed atmospheric background — very low opacity, kept off components */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background:
+      radial-gradient(60vw 50vh at 15% -10%, rgba(124, 58, 237, 0.16), transparent 65%),
+      radial-gradient(50vw 45vh at 95% 15%, rgba(167, 139, 250, 0.1), transparent 60%),
+      radial-gradient(70vw 60vh at 50% 110%, rgba(198, 255, 74, 0.04), transparent 60%);
+  }
+
+  ::selection {
+    @apply bg-lavender/30;
+  }
+}
