@@ -45,7 +45,7 @@ export function TextField({
 
   return (
     <div>
-      <label htmlFor={id} className="mb-2 flex items-baseline justify-between gap-2 text-sm font-medium text-ink">
+      <label htmlFor={id} className="mb-2 flex flex-wrap items-baseline justify-between gap-2 text-sm font-medium text-ink">
         <span>{label}</span>
         {optional && <span className="text-xs font-normal text-muted">optional</span>}
       </label>

@@ -18,8 +18,8 @@ export default {
         card: '2rem',
       },
       fontFamily: {
-        display: ['"Cormorant Garamond"', 'Georgia', 'serif'],
-        body: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+        display: ['Fraunces', 'Georgia', 'serif'],
+        body: ['Manrope', 'ui-sans-serif', 'system-ui', 'sans-serif'],
       },
     },
   },

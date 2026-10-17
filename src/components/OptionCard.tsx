@@ -42,13 +42,20 @@ export function OptionCard({
       tabIndex={tabIndex}
       onKeyDown={onKeyDown}
       onClick={onSelect}
-      whileTap={{ scale: 0.97 }}
+      whileHover={{ y: -1 }}
+      whileTap={{ scale: 0.975 }}
       animate={{ scale: selected ? 1.02 : 1 }}
       transition={{ type: 'spring', stiffness: 400, damping: 24 }}
       className={`${base} ${state}`}
     >
-      <span className="min-w-0 flex-1">{label}</span>
-      {selected && <Check className="h-5 w-5 shrink-0 text-lime" aria-hidden="true" />}
+      <span className="min-w-0 flex-1 text-left break-words">{label}</span>
+      <motion.span
+        className="flex-shrink-0"
+        animate={selected ? { scale: 1, opacity: 1 } : { scale: 0, opacity: 0 }}
+        transition={{ type: 'spring', stiffness: 500, damping: 24 }}
+      >
+        <Check className="h-5 w-5 shrink-0 text-lime" aria-hidden="true" />
+      </motion.span>
     </motion.button>
   );
 }

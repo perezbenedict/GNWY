@@ -11,9 +11,9 @@ export function Intro({ onStart }: IntroProps) {
   const reduceMotion = useReducedMotion();
 
   return (
-    <section className="relative overflow-hidden pb-8">
+    <section className="relative pb-8">
       {!reduceMotion && (
-        <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
+        <div aria-hidden="true" className="pointer-events-none fixed inset-0 -z-10">
           <motion.div
             className="absolute -left-24 -top-24 h-72 w-72 rounded-full bg-crimson/10 blur-3xl"
             animate={{ x: [0, 40, 0], y: [0, 30, 0] }}
@@ -27,12 +27,12 @@ export function Intro({ onStart }: IntroProps) {
         </div>
       )}
 
-      <div className="flex min-h-[calc(100svh-8rem)] flex-col justify-center py-10">
+      <div className="flex flex-col justify-center">
         <svg
           viewBox="0 0 120 120"
           role="img"
           aria-label="Grace Nation Wealthy Youths emblem"
-          className="mx-auto mb-5 h-20 w-20 drop-shadow-[0_0_18px_rgba(232,199,122,0.25)]"
+          className="mx-auto mb-5 h-24 w-24 drop-shadow-[0_0_18px_rgba(232,199,122,0.25)] sm:h-28 sm:w-28"
         >
           <defs>
             <linearGradient id="gold" x1="0" y1="0" x2="1" y2="1">
@@ -77,19 +77,19 @@ export function Intro({ onStart }: IntroProps) {
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, ease: 'easeOut' }}
-          className="mb-6 inline-flex w-fit items-center gap-2 rounded-full border border-lavender/30 bg-surface px-3 py-1.5 text-xs font-medium text-lavender"
+          className="mb-6 inline-flex w-fit items-center gap-2 rounded-full border border-lavender/30 bg-surface px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.2em] text-lavender"
         >
           ~30 seconds
         </motion.span>
 
-        <h1 className="bg-gradient-to-br from-[#F5DFA6] via-[#E8C77A] to-[#B8862F] bg-clip-text font-display text-4xl font-bold leading-[1.05] tracking-tight text-transparent sm:text-5xl">
+        <h1 className="bg-gradient-to-br from-[#F5DFA6] via-[#E8C77A] to-[#B8862F] bg-clip-text font-display font-semibold leading-[1.06] text-[2.5rem] tracking-[-0.01em] text-transparent sm:text-[3.25rem]">
           {HEADLINE_WORDS.map((word, index) => (
             <motion.span
               key={word}
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.4, ease: 'easeOut', delay: index * 0.08 }}
-              className="mr-3 inline-block"
+              className={`mr-3 inline-block${index >= 2 ? ' italic' : ''}`}
             >
               {word}
             </motion.span>
@@ -100,7 +100,7 @@ export function Intro({ onStart }: IntroProps) {
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, ease: 'easeOut', delay: 0.36 }}
-          className="mt-5 max-w-md text-lg leading-relaxed text-muted"
+          className="mt-6 max-w-md text-[17px] leading-[1.65] text-muted"
         >
           Church was more than a service. Tell us what stayed with you.
         </motion.p>
@@ -121,7 +121,7 @@ export function Intro({ onStart }: IntroProps) {
           >
             Let&rsquo;s talk &#x2728;
           </motion.button>
-          <p className="mt-3 text-sm text-muted">No long forms. Just your honest take.</p>
+          <p className="mt-3 text-[13px] tracking-[0.02em] text-muted">No long forms. Just your honest take.</p>
         </motion.div>
       </div>
     </section>

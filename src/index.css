@@ -9,6 +9,8 @@
 
   body {
     @apply bg-midnight font-body text-ink antialiased;
+    font-optical-sizing: auto;
+    text-rendering: optimizeLegibility;
   }
 
   /* Fixed atmospheric background — very low opacity, kept off components */
@@ -25,5 +27,32 @@
 
   ::selection {
     @apply bg-lavender/30;
+  }
+}
+
+/* One-shot gold sheen sweep across the primary button (add `animate-[sheen_0.9s_ease-out_0.4s_1]` to use it) */
+@keyframes sheen {
+  from {
+    transform: translateX(-120%) skewX(-18deg);
+  }
+  to {
+    transform: translateX(320%) skewX(-18deg);
+  }
+}
+
+/* Slow gold shimmer loop for the progress fill (add `animate-[shimmer_2.5s_linear_infinite]` to use it) */
+@keyframes shimmer {
+  from {
+    background-position: -150% 0;
+  }
+  to {
+    background-position: 250% 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-\[sheen_0\.9s_ease-out_0\.4s_1\],
+  .animate-\[shimmer_2\.5s_linear_infinite\] {
+    animation: none !important;
   }
 }

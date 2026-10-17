@@ -1,6 +1,18 @@
 import { useEffect, useRef } from 'react';
 import type { ReactNode } from 'react';
+import { motion } from 'motion/react';
+import type { Variants } from 'motion/react';
 import { Progress } from './Progress';
+
+const shellVariants: Variants = {
+  hidden: {},
+  show: { transition: { staggerChildren: 0.07, delayChildren: 0.04 } },
+};
+
+const slotVariants: Variants = {
+  hidden: { opacity: 0, y: 12 },
+  show: { opacity: 1, y: 0, transition: { type: 'spring', stiffness: 300, damping: 26 } },
+};
 
 interface ScreenShellProps {
   heading: string;
@@ -18,20 +30,31 @@ export function ScreenShell({ heading, question, support, progress, children }: 
   }, []);
 
   return (
-    <section className="pb-4">
-      {progress && <Progress step={progress.step} total={progress.total} />}
-      <h1
+    <motion.section className="pb-4" variants={shellVariants} initial="hidden" animate="show">
+      {progress && (
+        <motion.div variants={slotVariants}>
+          <Progress step={progress.step} total={progress.total} />
+        </motion.div>
+      )}
+      <motion.h1
         ref={headingRef}
         tabIndex={-1}
-        className="font-display text-3xl font-bold leading-tight text-ink focus:outline-none sm:text-4xl"
+        variants={slotVariants}
+        className="font-display text-[1.9rem] font-semibold leading-[1.1] tracking-[-0.01em] text-ink focus:outline-none sm:text-[2.4rem]"
       >
         {heading}
-      </h1>
+      </motion.h1>
       {question && (
-        <h2 className="mt-4 bg-gradient-to-br from-[#F5DFA6] via-[#E8C77A] to-[#B8862F] bg-clip-text font-display text-2xl font-semibold text-transparent sm:text-3xl">{question}</h2>
+        <motion.div variants={slotVariants}>
+          <h2 className="mt-4 bg-gradient-to-br from-[#F5DFA6] via-[#E8C77A] to-[#B8862F] bg-clip-text font-display text-[1.35rem] font-normal italic leading-snug text-transparent sm:text-[1.6rem]">{question}</h2>
+        </motion.div>
       )}
-      <p className="mt-3 text-base leading-relaxed text-muted">{support}</p>
-      <div className="mt-8">{children}</div>
-    </section>
+      <motion.p className="mt-3 text-[15px] leading-[1.65] tracking-[0.01em] text-muted" variants={slotVariants}>
+        {support}
+      </motion.p>
+      <motion.div className="mt-8" variants={slotVariants}>
+        {children}
+      </motion.div>
+    </motion.section>
   );
 }

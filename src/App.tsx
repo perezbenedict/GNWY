@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { ReactNode } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
+import type { Variants } from 'motion/react';
 import { useAnswers } from './state/useAnswers';
 import { buildPayload, payloadHasContent, submitFeedback } from './api/submit';
 import { Intro } from './screens/Intro';
@@ -12,12 +13,32 @@ import { ContactScreen } from './screens/ContactScreen';
 import { ReviewScreen } from './screens/ReviewScreen';
 import { SuccessScreen } from './screens/SuccessScreen';
 
+const forwardVariants: Variants = {
+  enter: { opacity: 0, x: 28 },
+  center: { opacity: 1, x: 0 },
+  exit: { opacity: 0, x: -28 },
+};
+
+const backwardVariants: Variants = {
+  enter: { opacity: 0, x: -28 },
+  center: { opacity: 1, x: 0 },
+  exit: { opacity: 0, x: 28 },
+};
+
 export default function App() {
   const { answers, step, setAnswer, goTo, clearDraft, reset } = useAnswers();
   const [submitStatus, setSubmitStatus] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle');
   const [error, setError] = useState('');
 
   const screenKey = submitStatus === 'success' ? 'success' : String(step);
+
+  const prevStep = useRef(step);
+  // Step does not decrease when success renders, so treat success as forward.
+  const direction = submitStatus === 'success' || step >= prevStep.current ? 1 : -1;
+
+  useEffect(() => {
+    prevStep.current = step;
+  }, [step]);
 
   const toggleIn = (list: string[], label: string) =>
     list.includes(label) ? list.filter((item) => item !== label) : [...list, label];
@@ -53,7 +74,10 @@ export default function App() {
 
   if (submitStatus === 'success') {
     return (
-      <main className="mx-auto w-full max-w-2xl px-5 pt-10 pb-10">
+      <main
+        className="mx-auto flex min-h-[100dvh] w-full max-w-2xl flex-col justify-center overflow-x-clip px-4 pb-12 pt-10 sm:px-8"
+        style={{ paddingBottom: 'max(3rem, env(safe-area-inset-bottom))' }}
+      >
         <SuccessScreen
           onDone={() => {
             setSubmitStatus('idle');
@@ -150,14 +174,19 @@ export default function App() {
   }
 
   return (
-    <main className="mx-auto w-full max-w-2xl px-5 pt-10 pb-10">
+    <main
+      className="mx-auto flex min-h-[100dvh] w-full max-w-2xl flex-col justify-center overflow-x-clip px-4 pb-12 pt-10 sm:px-8"
+      style={{ paddingBottom: 'max(3rem, env(safe-area-inset-bottom))' }}
+    >
       <AnimatePresence mode="wait" initial={false}>
         <motion.div
           key={screenKey}
-          initial={{ opacity: 0, x: 12 }}
-          animate={{ opacity: 1, x: 0 }}
-          exit={{ opacity: 0, x: -12 }}
-          transition={{ duration: 0.22, ease: 'easeOut' }}
+          className="min-w-0"
+          variants={direction > 0 ? forwardVariants : backwardVariants}
+          initial="enter"
+          animate="center"
+          exit="exit"
+          transition={{ type: 'spring', stiffness: 380, damping: 34, mass: 0.7 }}
         >
           {screen}
         </motion.div>

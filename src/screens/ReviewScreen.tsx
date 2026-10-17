@@ -52,9 +52,17 @@ export function ReviewScreen({ answers, submitting, submitFailed, error, onSubmi
     <>
       <ScreenShell heading={'Your take. Your impact. \u{1F49C}'} support="Ready to send your feedback?">
         {rows.length > 0 ? (
-          <ul className="flex flex-col gap-2.5">
+          <motion.ul
+            className="flex flex-col gap-2.5"
+            initial="hidden"
+            animate="show"
+            variants={{ hidden: {}, show: { transition: { staggerChildren: 0.05 } } }}
+          >
             {rows.map((row) => (
-              <li key={row.label}>
+              <motion.li
+                key={row.label}
+                variants={{ hidden: { opacity: 0, y: 10 }, show: { opacity: 1, y: 0 } }}
+              >
                 <button
                   type="button"
                   onClick={() => onEdit(row.step)}
@@ -65,9 +73,9 @@ export function ReviewScreen({ answers, submitting, submitFailed, error, onSubmi
                   </span>
                   <span className="min-w-0 break-words text-right text-sm text-ink">{row.value}</span>
                 </button>
-              </li>
+              </motion.li>
             ))}
-          </ul>
+          </motion.ul>
         ) : (
           <p className="rounded-2xl border border-lavender/20 bg-surface px-4 py-3.5 text-sm text-muted">
             Nothing yet — tap a rating or share a thought, then come back here.
@@ -104,12 +112,12 @@ export function ReviewScreen({ answers, submitting, submitFailed, error, onSubmi
             >
               {submitting ? (
                 <>
-                  <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+                  <Loader2 className="h-4 w-4 flex-shrink-0 animate-spin" aria-hidden="true" />
                   Sending…
                 </>
               ) : (
                 <>
-                  <Rocket className="h-4 w-4" aria-hidden="true" />
+                  <Rocket className="h-4 w-4 flex-shrink-0" aria-hidden="true" />
                   Send my feedback &#x1F680;
                 </>
               )}
