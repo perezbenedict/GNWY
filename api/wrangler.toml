@@ -5,7 +5,7 @@ compatibility_date = "2024-09-01"
 [[d1_databases]]
 binding = "DB"
 database_name = "gnwy-feedback"
-database_id = "REPLACE_WITH_YOUR_DATABASE_ID"
+database_id = "062cff6b-449c-4738-b1ba-6f9774e2257e"
 
 [vars]
 ADMIN_TOKEN = "REPLACE_WITH_A_LONG_RANDOM_SECRET"
