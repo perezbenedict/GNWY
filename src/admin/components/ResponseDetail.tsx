@@ -83,11 +83,9 @@ export function ResponseDetail({ item, onClose }: { item: FeedbackItem; onClose:
   const name = String(item.name ?? '').trim();
   const contact = String(item.contact ?? '').trim();
   const whoLabel = name || (contact ? 'No name given' : 'Anonymous');
-  const contactHref = contact.includes('@')
-    ? `mailto:${contact}`
-    : /\d/.test(contact)
-      ? `tel:${contact.replace(/[^\d+]/g, '')}`
-      : null;
+  // Emails get no tel:/mailto: line link - the prominent email button below is the action.
+  const contactHref =
+    !contact.includes('@') && /\d/.test(contact) ? `tel:${contact.replace(/[^\d+]/g, '')}` : null;
   const contactKind = contact ? classifyContact(item.contact) : 'empty';
   const waLink = contactKind === 'phone' ? getWhatsAppLink(contact) : null;
   const categories = String(item.categories || '')
@@ -166,6 +164,19 @@ export function ResponseDetail({ item, onClose }: { item: FeedbackItem; onClose:
                 </a>
                 <p className="mt-1.5 text-[11px] text-muted">
                   Opens WhatsApp - you review and send the message yourself.
+                </p>
+              </div>
+            ) : null}
+            {contactKind === 'email' ? (
+              <div className="mt-3">
+                <a
+                  href={`mailto:${contact}`}
+                  className="inline-flex h-11 items-center rounded-xl border border-lavender/40 bg-lavender/10 px-4 text-xs font-semibold uppercase tracking-[0.14em] text-lavender transition hover:bg-lavender/20 focus:outline-none focus:ring-2 focus:ring-lavender/40"
+                >
+                  Email {name || 'respondent'}
+                </a>
+                <p className="mt-1.5 text-[11px] text-muted">
+                  Opens your email app - you review and send it yourself.
                 </p>
               </div>
             ) : null}

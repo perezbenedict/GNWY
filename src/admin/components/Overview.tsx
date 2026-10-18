@@ -106,7 +106,7 @@ function RankingCard({
   onDrillIn?: (target: DrillTarget) => void;
 }) {
   const reduced = useReducedMotion() === true;
-  const maxCount = entries.length > 0 ? entries[0].count : 0;
+  const maxCount = entries.reduce((max, entry) => Math.max(max, entry.count), 0);
 
   return (
     <motion.article
@@ -125,13 +125,15 @@ function RankingCard({
       ) : (
         <ul className="mt-3 flex flex-col gap-2">
           {entries.map((entry) => {
-            const percent = maxCount > 0 ? (entry.count / maxCount) * 100 : 0;
+            const rounded =
+              maxCount > 0 ? Math.round((entry.count / maxCount) * 100) : 0;
+            const percent = Math.min(100, Math.max(rounded, entry.count > 0 ? 4 : 0));
             const content = (
               <>
-                {/* Slim proportional bar behind the row: visual weight only, never a number. */}
+                {/* Slim proportional bar along the row bottom: visual weight only, never a number. */}
                 <span
                   aria-hidden="true"
-                  className="absolute left-0 top-1/2 h-1 -translate-y-1/2 rounded-full bg-lavender/20"
+                  className="absolute bottom-1 left-2 h-1 rounded-full bg-gradient-to-r from-lavender/40 to-[#B8862F]/30"
                   style={{ width: `${percent}%` }}
                 />
                 <span className="relative min-w-0 flex-1 truncate text-sm text-ink">
@@ -143,7 +145,7 @@ function RankingCard({
               </>
             );
             const rowBase =
-              'relative flex w-full min-w-0 items-center gap-3 overflow-hidden rounded-lg border border-transparent px-2 py-1.5';
+              'relative flex w-full min-w-0 items-center gap-3 overflow-hidden rounded-lg border border-transparent px-2 py-2';
             return (
               <li key={entry.label}>
                 {onDrillIn ? (

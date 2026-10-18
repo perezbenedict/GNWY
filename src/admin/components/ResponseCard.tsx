@@ -136,6 +136,15 @@ export function ResponseCard({
               WhatsApp
             </a>
           ) : null}
+          {contactKind === 'email' ? (
+            <a
+              href={`mailto:${contact}`}
+              aria-label={`Email ${name || 'respondent'}`}
+              className="inline-flex h-11 items-center rounded-full border border-lavender/40 bg-lavender/10 px-3 text-[11px] font-semibold uppercase tracking-[0.12em] text-lavender transition hover:bg-lavender/20 focus:outline-none focus:ring-2 focus:ring-lavender/40"
+            >
+              Email
+            </a>
+          ) : null}
         </div>
         <button
           type="button"

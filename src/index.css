@@ -50,9 +50,25 @@
   }
 }
 
+/* Admin topbar emblem: continuous 16s spin via plain CSS (robust against motion/bundling quirks) */
+@keyframes gnwy-logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.gnwy-logo-spin {
+  animation: gnwy-logo-spin 16s linear infinite;
+  will-change: transform;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .animate-\[sheen_0\.9s_ease-out_0\.4s_1\],
-  .animate-\[shimmer_2\.5s_linear_infinite\] {
+  .animate-\[shimmer_2\.5s_linear_infinite\],
+  .gnwy-logo-spin {
     animation: none !important;
   }
 }
