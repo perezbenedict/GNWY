@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
-import { X } from 'lucide-react';
+import { LayoutGrid, List, Rows3, X } from 'lucide-react';
 import { Emblem } from '../../components/Emblem';
 import { ResponseCard } from './ResponseCard';
 import { ResponseDetail } from './ResponseDetail';
@@ -8,6 +8,25 @@ import DiscardDialog from './DiscardDialog';
 import type { FeedbackItem, SortMode } from '../types';
 
 const PAGE_SIZE = 25;
+
+const VIEW_STORAGE_KEY = 'gnwy_admin_view';
+
+const VIEW_MODES = [
+  { id: 'list', label: 'List view', Icon: List },
+  { id: 'grid', label: 'Grid view', Icon: LayoutGrid },
+  { id: 'stack', label: 'Stack view', Icon: Rows3 },
+] as const;
+
+type ViewMode = (typeof VIEW_MODES)[number]['id'];
+
+function readStoredView(): ViewMode {
+  try {
+    const stored = localStorage.getItem(VIEW_STORAGE_KEY);
+    return stored === 'grid' || stored === 'stack' ? stored : 'list';
+  } catch {
+    return 'list'; // storage unavailable (private mode, blocked cookies)
+  }
+}
 
 const SHIMMER_BAR =
   'animate-[shimmer_2.5s_linear_infinite] rounded-full bg-white/5';
@@ -134,7 +153,17 @@ export function FeedbackList({
   const [discardTarget, setDiscardTarget] = useState<FeedbackItem | null>(null);
   const [bulkOpen, setBulkOpen] = useState(false);
   const [notice, setNotice] = useState<string | null>(null);
+  const [view, setView] = useState<ViewMode>(readStoredView);
   const selectAllRef = useRef<HTMLInputElement>(null);
+
+  const changeView = (next: ViewMode) => {
+    setView(next);
+    try {
+      localStorage.setItem(VIEW_STORAGE_KEY, next);
+    } catch {
+      // storage unavailable; keep the in-session selection
+    }
+  };
 
   // Re-cap the list when filtering shrinks it below what is currently shown.
   useEffect(() => {
@@ -232,6 +261,39 @@ export function FeedbackList({
         </div>
       ) : null}
 
+      {items.length > 0 || !loading ? (
+        <div className="mb-4 flex items-center justify-end rounded-xl border border-lavender/10 bg-surface px-4 py-2">
+          <div className="flex items-center gap-3">
+            <span className="text-xs font-semibold uppercase tracking-[0.16em] text-muted/70">View</span>
+            <div
+              role="group"
+              aria-label="Response view mode"
+              className="inline-flex items-center gap-1 rounded-lg border border-white/15 p-1"
+            >
+              {VIEW_MODES.map(({ id, label, Icon }) => {
+                const active = view === id;
+                return (
+                  <button
+                    key={id}
+                    type="button"
+                    aria-pressed={active}
+                    aria-label={label}
+                    onClick={() => changeView(id)}
+                    className={`inline-flex h-10 w-10 items-center justify-center rounded-md transition focus:outline-none focus:ring-2 focus:ring-lavender/40 ${
+                      active
+                        ? 'border border-lavender/50 bg-lavender/15 text-ink'
+                        : 'border border-transparent text-muted hover:text-ink'
+                    }`}
+                  >
+                    <Icon className="h-4 w-4" aria-hidden="true" />
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      ) : null}
+
       {!loading && !error && visible.length > 0 ? (
         <div className="mb-4 flex flex-wrap items-center justify-between gap-x-4 gap-y-2 rounded-xl border border-lavender/10 bg-surface px-4 py-2">
           <label className="inline-flex h-11 cursor-pointer items-center gap-3 text-sm text-muted">
@@ -293,6 +355,39 @@ export function FeedbackList({
           </motion.div>
           <p className="text-sm text-muted">No responses yet - share the QR poster after service to begin.</p>
         </motion.div>
+      ) : view === 'grid' ? (
+        <div className="grid grid-cols-1 items-start gap-4 sm:grid-cols-2 xl:grid-cols-3">
+          <AnimatePresence initial={false}>
+            {visible.map((item, index) => (
+              <ResponseCard
+                key={item.id}
+                item={item}
+                index={index}
+                selected={selectedIds.has(item.id)}
+                onToggleSelect={toggleSelect}
+                onDiscardRequest={setDiscardTarget}
+                onOpen={() => setSelectedId(item.id)}
+              />
+            ))}
+          </AnimatePresence>
+        </div>
+      ) : view === 'stack' ? (
+        <div className="divide-y divide-white/5 overflow-hidden rounded-2xl border border-lavender/10 bg-surface">
+          <AnimatePresence initial={false}>
+            {visible.map((item, index) => (
+              <ResponseCard
+                key={item.id}
+                item={item}
+                index={index}
+                variant="stack"
+                selected={selectedIds.has(item.id)}
+                onToggleSelect={toggleSelect}
+                onDiscardRequest={setDiscardTarget}
+                onOpen={() => setSelectedId(item.id)}
+              />
+            ))}
+          </AnimatePresence>
+        </div>
       ) : grouped ? (
         <div className="space-y-6">
           {groupByDay(visible).map((group) => (

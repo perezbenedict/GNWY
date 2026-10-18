@@ -6,6 +6,7 @@ import { Topbar } from './components/Topbar';
 import { StatCards } from './components/StatCards';
 import { Insights } from './components/Insights';
 import Polls from './components/Polls';
+import Charts from './components/Charts';
 import TrendPanel from './components/TrendPanel';
 import Overview from './components/Overview';
 import ComparePanel from './components/ComparePanel';
@@ -407,6 +408,7 @@ export function App() {
 
               {visited.analytics ? (
                 <motion.section aria-label="Analytics" className="space-y-6" {...sectionMotion('analytics')}>
+                  <Charts items={allItems} />
                   {summary ? <Insights items={allItems} summary={summary} /> : null}
                   <Polls items={allItems} />
                   <TrendPanel items={allItems} />

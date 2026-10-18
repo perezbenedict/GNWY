@@ -142,9 +142,10 @@ export default function ComparePanel({
   return (
     <section aria-label="Service comparison" className="mb-6">
       <motion.article
-        initial={{ opacity: 0, y: 12 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ type: 'spring', stiffness: 260, damping: 26, delay: 0.18 }}
+        initial={{ opacity: 0, y: 16 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: '-40px' }}
+        transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
         className="min-w-0 rounded-2xl border border-white/10 bg-surface p-5 sm:p-6"
       >
         <h2 className="text-xs font-semibold uppercase tracking-[0.18em] text-muted">

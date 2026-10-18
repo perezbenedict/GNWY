@@ -23,12 +23,13 @@ function Bar({ percent }: { percent: number }) {
   );
 }
 
-function Panel({ title, index, children }: { title: string; index: number; children: ReactNode }) {
+function Panel({ title, children }: { title: string; children: ReactNode }) {
   return (
     <motion.article
-      initial={{ opacity: 0, y: 12 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ type: 'spring', stiffness: 260, damping: 26, delay: index * 0.06 }}
+      initial={{ opacity: 0, y: 16 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: '-40px' }}
+      transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
       className="min-w-0 rounded-2xl border border-white/10 bg-surface p-5 sm:p-6"
     >
       <h3 className="text-xs font-semibold uppercase tracking-[0.18em] text-muted">{title}</h3>
@@ -193,16 +194,16 @@ export default function TrendPanel({ items }: { items: FeedbackItem[] }) {
         THE PULSE
       </h2>
       <div className="grid grid-cols-1 items-start gap-4 sm:grid-cols-2">
-        <Panel title="LAST 14 DAYS" index={0}>
+        <Panel title="LAST 14 DAYS">
           <Last14Days items={items} />
         </Panel>
-        <Panel title="TIME OF DAY" index={1}>
+        <Panel title="TIME OF DAY">
           <TimeOfDay items={items} />
         </Panel>
-        <Panel title="REACH RATE" index={2}>
+        <Panel title="REACH RATE">
           <ReachRate items={items} />
         </Panel>
-        <Panel title="MOMENTUM" index={3}>
+        <Panel title="MOMENTUM">
           <Momentum items={items} />
         </Panel>
       </div>
