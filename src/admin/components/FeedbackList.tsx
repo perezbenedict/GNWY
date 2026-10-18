@@ -369,6 +369,7 @@ export function FeedbackList({
               try {
                 await onDiscard(discardTarget.id, reauth);
                 setDiscardTarget(null);
+                setNotice('Discarded 1 response.');
                 return null;
               } catch (err) {
                 return err instanceof Error ? err.message : 'Discard failed. Nothing was removed.';
