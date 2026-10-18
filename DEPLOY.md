@@ -65,7 +65,6 @@ Note the deployed URL, e.g. `https://gnwy-feedback.<account>.workers.dev`.
 
 ## 6. Hook up the site
 
-- Paste the Worker URL into `app.js` (`const FEEDBACK_API = '...'`).
-- Paste the same URL into `admin.js` (`const FEEDBACK_API = '...'` at the top).
-- Paste the same URL into `poster.html` (`SITE_URL`).
-- Open `admin.html` and enter the same `ADMIN_TOKEN` to view submissions.
+- The Worker URL is already set in `src/api/submit.ts` (`FEEDBACK_API`) and `src/admin/api.ts` (`FEEDBACK_API`).
+- Paste the same URL into `public/poster.html` (`SITE_URL`).
+- Open `admin.html` (built React vault) and enter the same `ADMIN_TOKEN` to view submissions.

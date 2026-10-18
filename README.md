@@ -4,9 +4,9 @@ Post-service feedback system for Grace Nation Wealthy Youths.
 
 ## Pages
 
-- `index.html` — public feedback form (rating, liked/disliked, suggestions, expectations). Scanned via the QR poster.
-- `poster.html` — printable A4 standee with QR code linking to the form. Print to PDF (Cmd+P).
-- `admin.html` — "Response Vault" for leadership: stats, filters, CSV export, discard.
+- `index.html` → `src/` — public React feedback form (rating, liked/disliked, suggestions, expectations). Scanned via the QR poster.
+- `admin.html` → `src/admin/` — "Response Vault" React dashboard for leadership: animated stats, filters, CSV export, discard.
+- `public/poster.html` — printable A4 standee with QR code linking to the form. Print to PDF (Cmd+P).
 
 ## Backend
 
@@ -14,10 +14,10 @@ Post-service feedback system for Grace Nation Wealthy Youths.
 
 ## Configuration
 
-Paste your deployed Worker URL into:
+The deployed Worker URL lives in:
 
-- `app.js` — `const FEEDBACK_API = ''`
-- `admin.js` — `const FEEDBACK_API = ''`
-- `poster.html` — `const SITE_URL = ''` (the public form URL)
+- `src/api/submit.ts` — `export const FEEDBACK_API = '...'` (public form)
+- `src/admin/api.ts` — `const FEEDBACK_API = '...'` (Response Vault)
+- `public/poster.html` — `const SITE_URL = '...'` (the public form URL)
 
 Drop the ministry logo at `assets/logo.png` to replace the built-in SVG emblem.
