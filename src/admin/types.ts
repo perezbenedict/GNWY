@@ -18,6 +18,8 @@ export interface Summary {
   categoryCounts: Record<string, number>;
 }
 
+export type SortMode = 'new' | 'old' | 'high' | 'low';
+
 export const CATEGORIES = [
   'Worship',
   'The Word',

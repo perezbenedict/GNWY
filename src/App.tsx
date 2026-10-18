@@ -4,6 +4,9 @@ import { AnimatePresence, motion } from 'motion/react';
 import type { Variants } from 'motion/react';
 import { useAnswers } from './state/useAnswers';
 import { buildPayload, payloadHasContent, submitFeedback } from './api/submit';
+import { fetchUsedNicknames } from './api/nicknames';
+import { NICKNAMES } from './data/nicknames';
+import { pickSuggestion } from './lib/nicknames';
 import { Intro } from './screens/Intro';
 import { RatingScreen } from './screens/RatingScreen';
 import { StoodOutScreen } from './screens/StoodOutScreen';
@@ -114,8 +117,22 @@ export default function App() {
     }
     setError('');
     setSubmitStatus('submitting');
+    let current = answers;
     try {
-      await submitFeedback(payload);
+      try {
+        await submitFeedback(payload);
+      } catch (err) {
+        // Duck-typed (not NicknameTakenError) so the vi.mock in App.test.tsx keeps working.
+        const status = (err as { status?: number } | null)?.status;
+        if (status !== 409 || current.nameIsGenerated !== true || !current.name.trim()) throw err;
+        const freshUsed = await fetchUsedNicknames();
+        const next = pickSuggestion(NICKNAMES, current.name.trim(), freshUsed);
+        if (!next) throw err;
+        current = { ...current, name: next, nameIsGenerated: true, selectedSuggestion: next };
+        setAnswer({ name: next, nameIsGenerated: true, selectedSuggestion: next });
+        // Single retry; any further failure falls through to the existing error handling.
+        await submitFeedback(buildPayload(current));
+      }
       clearDraft();
       setSubmitStatus('success');
     } catch {
@@ -204,6 +221,8 @@ export default function App() {
           contact={answers.contact}
           onNameChange={(value) => setAnswer({ name: value })}
           onContactChange={(value) => setAnswer({ contact: value })}
+          onNameGenerated={(value) => setAnswer({ name: value, nameIsGenerated: true, selectedSuggestion: value })}
+          onNameEdited={() => setAnswer({ nameIsGenerated: false })}
           onBack={() => goTo(4)}
           onNext={() => goTo(6)}
         />

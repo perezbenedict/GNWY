@@ -35,6 +35,17 @@ function cleanText(value) {
   return typeof value === 'string' ? value.trim().slice(0, MAX_TEXT) : '';
 }
 
+/* ---------- public: used nicknames ---------- */
+
+async function handleUsedNicknames(request, env) {
+  try {
+    const rows = await env.DB.prepare('SELECT nickname FROM used_nicknames ORDER BY created_at ASC').all();
+    return json({ used: rows.results.map((r) => r.nickname) });
+  } catch (_) {
+    return json({ used: [] });
+  }
+}
+
 /* ---------- public: create ---------- */
 
 async function handleCreate(request, env) {
@@ -68,12 +79,33 @@ async function handleCreate(request, env) {
   }
 
   const id = crypto.randomUUID();
-  await env.DB.prepare(
-    "INSERT INTO feedback (id, created_at, rating, categories, liked, disliked, suggestions, expectations, name, contact) " +
-      "VALUES (?, datetime('now'), ?, ?, ?, ?, ?, ?, ?, ?)"
-  )
-    .bind(id, rating, categories, liked, disliked, suggestions, expectations, name, contact)
-    .run();
+  const nameIsGenerated = body.nameIsGenerated === true;
+  if (nameIsGenerated && name) {
+    // Atomic: claim the nickname and insert the feedback in one batch so a
+    // duplicate nickname (UNIQUE constraint) fails before writing either row.
+    try {
+      await env.DB.batch([
+        env.DB.prepare('INSERT INTO used_nicknames (nickname) VALUES (?)').bind(name),
+        env.DB.prepare(
+          "INSERT INTO feedback (id, created_at, rating, categories, liked, disliked, suggestions, expectations, name, contact) " +
+            "VALUES (?, datetime('now'), ?, ?, ?, ?, ?, ?, ?, ?)"
+        ).bind(id, rating, categories, liked, disliked, suggestions, expectations, name, contact),
+      ]);
+    } catch (err) {
+      const message = String((err && err.message) || err);
+      if (message.includes('UNIQUE constraint failed') || /unique constraint/i.test(message)) {
+        return json({ error: 'nickname_taken' }, 409);
+      }
+      throw err;
+    }
+  } else {
+    await env.DB.prepare(
+      "INSERT INTO feedback (id, created_at, rating, categories, liked, disliked, suggestions, expectations, name, contact) " +
+        "VALUES (?, datetime('now'), ?, ?, ?, ?, ?, ?, ?, ?)"
+    )
+      .bind(id, rating, categories, liked, disliked, suggestions, expectations, name, contact)
+      .run();
+  }
 
   return json({ ok: true, id }, 201);
 }
@@ -215,6 +247,8 @@ export default {
 
     try {
       if (path === '/api/health' && method === 'GET') return json({ ok: true });
+
+      if (path === '/api/nicknames/used' && method === 'GET') return await handleUsedNicknames(request, env);
 
       if (path === '/api/feedback') {
         if (method === 'POST') return await handleCreate(request, env);

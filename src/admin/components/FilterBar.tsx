@@ -1,14 +1,17 @@
 import { motion } from 'motion/react';
 import { Search } from 'lucide-react';
 import { CATEGORIES } from '../types';
+import type { SortMode } from '../types';
 
 interface FilterBarProps {
   query: string;
   minRating: string;
   category: string;
+  sort: SortMode;
   onQueryChange: (value: string) => void;
   onMinRatingChange: (value: string) => void;
   onCategoryChange: (value: string) => void;
+  onSortChange: (value: SortMode) => void;
   onClear: () => void;
 }
 
@@ -20,9 +23,11 @@ export function FilterBar({
   query,
   minRating,
   category,
+  sort,
   onQueryChange,
   onMinRatingChange,
   onCategoryChange,
+  onSortChange,
   onClear,
 }: FilterBarProps) {
   return (
@@ -86,6 +91,22 @@ export function FilterBar({
               {name}
             </option>
           ))}
+        </select>
+      </div>
+      <div>
+        <label htmlFor="filter-sort" className={LABEL_CLASS}>
+          Sort
+        </label>
+        <select
+          id="filter-sort"
+          value={sort}
+          onChange={(event) => onSortChange(event.target.value as SortMode)}
+          className={SELECT_CLASS}
+        >
+          <option value="new">Newest first</option>
+          <option value="old">Oldest first</option>
+          <option value="high">Highest rating</option>
+          <option value="low">Low rating</option>
         </select>
       </div>
       <div className="flex items-end">

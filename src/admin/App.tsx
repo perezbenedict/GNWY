@@ -4,6 +4,7 @@ import { Emblem } from '../components/Emblem';
 import { Gate } from './components/Gate';
 import { Topbar } from './components/Topbar';
 import { StatCards } from './components/StatCards';
+import { Insights } from './components/Insights';
 import { FilterBar } from './components/FilterBar';
 import { FeedbackList } from './components/FeedbackList';
 import {
@@ -15,7 +16,7 @@ import {
   setToken,
   VaultError,
 } from './api';
-import type { FeedbackItem, Summary } from './types';
+import type { FeedbackItem, SortMode, Summary } from './types';
 
 const AUTH_ERROR = 'Access key not recognized.';
 
@@ -48,6 +49,7 @@ export function App() {
   const [query, setQuery] = useState('');
   const [minRating, setMinRating] = useState('');
   const [category, setCategory] = useState('');
+  const [sort, setSort] = useState<SortMode>('new');
   const applied = useRef({ q: '', minRating: '', category: '' });
 
   // A 401 anywhere drops back to the gate and shows the auth message.
@@ -189,13 +191,16 @@ export function App() {
             <Topbar onLock={handleLock} />
             <main className="mx-auto w-full max-w-5xl px-4 pb-16 pt-6 sm:px-6">
               <StatCards summary={summary} />
+              {summary ? <Insights items={items} summary={summary} /> : null}
               <FilterBar
                 query={query}
                 minRating={minRating}
                 category={category}
+                sort={sort}
                 onQueryChange={setQuery}
                 onMinRatingChange={changeMinRating}
                 onCategoryChange={changeCategory}
+                onSortChange={setSort}
                 onClear={clearFilters}
               />
               <div className="mb-6 flex flex-wrap items-center gap-3">
@@ -219,6 +224,7 @@ export function App() {
                 loading={loading}
                 error={listError}
                 items={items}
+                sort={sort}
                 onRetry={load}
                 onDiscard={handleDiscard}
               />

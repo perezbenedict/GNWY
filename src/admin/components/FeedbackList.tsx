@@ -1,7 +1,7 @@
 import { AnimatePresence, motion } from 'motion/react';
 import { Emblem } from '../../components/Emblem';
 import { ResponseCard } from './ResponseCard';
-import type { FeedbackItem } from '../types';
+import type { FeedbackItem, SortMode } from '../types';
 
 const SHIMMER_BAR =
   'animate-[shimmer_2.5s_linear_infinite] rounded-full bg-white/5';
@@ -30,22 +30,78 @@ function SkeletonCard() {
   );
 }
 
+// Pure sort used by App. Date sorts keep the newest-first server order ('new') or reverse it
+// ('old'); rating sorts send unrated items last in both directions. Array.sort is stable.
+export function sortItems(items: FeedbackItem[], sort: SortMode): FeedbackItem[] {
+  const list = [...items];
+  if (sort === 'high' || sort === 'low') {
+    const direction = sort === 'high' ? -1 : 1;
+    return list.sort((a, b) => {
+      const ra = a.rating;
+      const rb = b.rating;
+      if (ra === null && rb === null) return 0;
+      if (ra === null) return 1;
+      if (rb === null) return -1;
+      return (ra - rb) * direction;
+    });
+  }
+  const direction = sort === 'old' ? 1 : -1;
+  return list.sort(
+    (a, b) => direction * ((Date.parse(a.created_at) || 0) - (Date.parse(b.created_at) || 0)),
+  );
+}
+
+interface DayGroup {
+  key: string;
+  date: Date | null;
+  startIndex: number;
+  items: FeedbackItem[];
+}
+
+// Group consecutive items sharing a LOCAL calendar date. Items with unparseable dates
+// collapse into their own 'Undated' groups wherever they fall in the order.
+function groupByDay(items: FeedbackItem[]): DayGroup[] {
+  const groups: DayGroup[] = [];
+  items.forEach((item, index) => {
+    const date = new Date(item.created_at);
+    const valid = !Number.isNaN(date.getTime());
+    const key = valid ? `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}` : `undated-${index}`;
+    const last = groups[groups.length - 1];
+    if (last && last.key === key) {
+      last.items.push(item);
+    } else {
+      groups.push({ key, date: valid ? date : null, startIndex: index, items: [item] });
+    }
+  });
+  return groups;
+}
+
+function dayLabel(date: Date | null): string {
+  if (!date) return 'Undated';
+  const startOfDay = (value: Date) => new Date(value.getFullYear(), value.getMonth(), value.getDate()).getTime();
+  const diffDays = Math.round((startOfDay(new Date()) - startOfDay(date)) / 86_400_000);
+  if (diffDays === 0) return 'Today';
+  if (diffDays === 1) return 'Yesterday';
+  return date.toLocaleDateString(undefined, { weekday: 'short', day: 'numeric', month: 'short' });
+}
+
 export function FeedbackList({
   loading,
   error,
   items,
+  sort,
   onRetry,
   onDiscard,
 }: {
   loading: boolean;
   error: string;
   items: FeedbackItem[];
+  sort: SortMode;
   onRetry: () => void;
   onDiscard: (id: string) => void;
 }) {
-  const sorted = [...items].sort(
-    (a, b) => (Date.parse(b.created_at) || 0) - (Date.parse(a.created_at) || 0),
-  );
+  const sorted = sortItems(items, sort);
+  const grouped = sort === 'new' || sort === 'old';
 
   return (
     <section aria-live="polite" aria-busy={loading}>
@@ -86,6 +142,34 @@ export function FeedbackList({
           </motion.div>
           <p className="text-sm text-muted">No responses yet - share the QR poster after service to begin.</p>
         </motion.div>
+      ) : grouped ? (
+        <div className="space-y-6">
+          {groupByDay(sorted).map((group) => (
+            <div key={group.key} className="space-y-4">
+              <motion.h3
+                initial={{ opacity: 0, y: 4 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ type: 'spring', stiffness: 260, damping: 26 }}
+                className="pt-2 text-sm uppercase tracking-wide text-muted"
+              >
+                {dayLabel(group.date)}{' '}
+                <span className="normal-case">
+                  · {group.items.length} {group.items.length === 1 ? 'response' : 'responses'}
+                </span>
+              </motion.h3>
+              <AnimatePresence initial={false}>
+                {group.items.map((item, offset) => (
+                  <ResponseCard
+                    key={item.id}
+                    item={item}
+                    index={group.startIndex + offset}
+                    onDiscard={onDiscard}
+                  />
+                ))}
+              </AnimatePresence>
+            </div>
+          ))}
+        </div>
       ) : (
         <div className="space-y-4">
           <AnimatePresence initial={false}>

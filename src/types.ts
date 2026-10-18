@@ -9,6 +9,8 @@ export interface Answers {
   ideaCustom: string;
   name: string;
   contact: string;
+  selectedSuggestion?: string;
+  nameIsGenerated?: boolean;
 }
 
 export const EMPTY_ANSWERS: Answers = {
@@ -33,4 +35,5 @@ export interface FeedbackPayload {
   expectations: string;
   name: string;
   contact: string;
+  nameIsGenerated?: boolean;
 }
