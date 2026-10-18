@@ -196,6 +196,7 @@ async function handleList(request, env) {
 }
 
 /* ---------- admin: CSV export ---------- */
+// TO BE FIXED AND IMPLEMENTED FOR BETTER VIEW ESPECIALLY WHEN IT WAS CREATED
 
 function csvField(value) {
   const s = value === null || value === undefined ? '' : String(value);

@@ -5,6 +5,8 @@ import { Gate } from './components/Gate';
 import { Topbar } from './components/Topbar';
 import { StatCards } from './components/StatCards';
 import { Insights } from './components/Insights';
+import Polls from './components/Polls';
+import TrendPanel from './components/TrendPanel';
 import { FilterBar } from './components/FilterBar';
 import { FeedbackList } from './components/FeedbackList';
 import {
@@ -192,6 +194,8 @@ export function App() {
             <main className="mx-auto w-full max-w-5xl px-4 pb-16 pt-6 sm:px-6">
               <StatCards summary={summary} />
               {summary ? <Insights items={items} summary={summary} /> : null}
+              <Polls items={items} />
+              <TrendPanel items={items} />
               <FilterBar
                 query={query}
                 minRating={minRating}
