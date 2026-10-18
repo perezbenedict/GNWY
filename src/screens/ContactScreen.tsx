@@ -112,23 +112,30 @@ export function ContactScreen({
               <p className="mt-3 text-sm text-muted">Every nickname's been claimed - write your own ✨</p>
             ) : (
               <div className="mt-3 flex flex-wrap gap-2">
-                <button
+                <motion.button
                   type="button"
                   onClick={handleAnother}
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.4, ease: 'easeOut' }}
                   className="min-h-[44px] rounded-xl border border-lavender/40 px-4 text-sm font-medium text-lavender transition-colors hover:bg-lavender/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-lavender/60"
                 >
                   🎲 Give me another
-                </button>
-                <button
+                </motion.button>
+                <motion.button
                   type="button"
                   onClick={handleUse}
                   aria-disabled={useDisabled}
+                  initial={{ opacity: 0, y: 8 }}
+                  // Mirror the class-based disabled opacity; motion's inline opacity would otherwise override it.
+                  animate={{ opacity: useDisabled ? 0.5 : 1, y: 0 }}
+                  transition={{ duration: 0.4, ease: 'easeOut', delay: 0.06 }}
                   className={`min-h-[44px] rounded-xl bg-gradient-to-b from-lavender to-[#d4b065] px-4 text-sm font-semibold text-midnight transition-opacity focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-lavender/60 ${
                     useDisabled ? 'cursor-not-allowed opacity-50' : ''
                   }`}
                 >
                   Use this nickname
-                </button>
+                </motion.button>
               </div>
             )}
           </div>

@@ -22,12 +22,24 @@ export function NavButtons({ onBack, onNext, nextLabel = 'Next', onSkip, skipLab
     >
       <div className="flex items-center gap-3">
         {onBack && (
-          <motion.button type="button" onClick={onBack} whileTap={{ scale: 0.98 }} className={ghostButtonClass}>
+          <motion.button
+            type="button"
+            onClick={onBack}
+            whileHover={{ y: -1 }}
+            whileTap={{ scale: 0.97 }}
+            className={ghostButtonClass}
+          >
             Back
           </motion.button>
         )}
         {onSkip && (
-          <motion.button type="button" onClick={onSkip} whileTap={{ scale: 0.98 }} className={ghostButtonClass}>
+          <motion.button
+            type="button"
+            onClick={onSkip}
+            whileHover={{ y: -1 }}
+            whileTap={{ scale: 0.97 }}
+            className={ghostButtonClass}
+          >
             {skipLabel}
           </motion.button>
         )}
@@ -36,7 +48,7 @@ export function NavButtons({ onBack, onNext, nextLabel = 'Next', onSkip, skipLab
             type="button"
             onClick={onNext}
             whileHover={{ y: -1 }}
-            whileTap={{ scale: 0.955 }}
+            whileTap={{ scale: 0.97 }}
             transition={{ type: 'spring', stiffness: 400, damping: 24 }}
             className={primaryButtonClass}
           >

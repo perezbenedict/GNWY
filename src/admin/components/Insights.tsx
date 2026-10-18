@@ -48,7 +48,8 @@ function RatingDistribution({ items }: { items: FeedbackItem[] }) {
             key={bucket.rating}
             role="img"
             aria-label={`Rating ${bucket.rating}: ${bucket.count} responses`}
-            className="flex items-center gap-3"
+            title={`${bucket.rating} stars: ${bucket.count} responses`}
+            className="flex items-center gap-3 transition-opacity hover:opacity-80"
           >
             <span className="shrink-0 text-sm text-muted">{bucket.rating} ★</span>
             <Bar percent={(bucket.count / largest) * 100} />
@@ -75,7 +76,11 @@ function TopCategories({ summary }: { summary: Summary }) {
         top.map(([name, count]) => {
           const percent = summary.total > 0 ? Math.round((count / summary.total) * 100) : 0;
           return (
-            <div key={name} className="flex items-center gap-3">
+            <div
+              key={name}
+              title={name}
+              className="flex items-center gap-3 transition-opacity hover:opacity-80"
+            >
               <span className="min-w-0 max-w-[45%] truncate text-sm text-ink" title={name}>
                 {name}
               </span>

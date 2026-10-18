@@ -59,15 +59,25 @@ function BackgroundEmblem({ atmosphere }: { atmosphere: AtmosphereState }) {
         className="absolute h-[80vmin] w-[80vmin] rounded-full"
         style={{ background: 'radial-gradient(circle, rgba(232,199,122,0.10), transparent 65%)' }}
       />
+      {/* Radial gradients, not blur filters: a filtered square div can paint its box over the
+          emblem (radius dropped / filter clipped to element bounds) in some engines. */}
       <motion.div
-        className="absolute h-72 w-72 rounded-full bg-crimson/10 blur-3xl"
-        style={{ top: -96, left: -96 }}
+        className="absolute h-72 w-72 rounded-full"
+        style={{
+          top: -96,
+          left: -96,
+          background: 'radial-gradient(circle, rgba(179,34,58,0.10) 40%, rgba(179,34,58,0) 65%)',
+        }}
         animate={deltas.a}
         transition={blobTransition}
       />
       <motion.div
-        className="absolute h-64 w-64 rounded-full bg-lavender/15 blur-3xl"
-        style={{ top: 160, right: -80 }}
+        className="absolute h-64 w-64 rounded-full"
+        style={{
+          top: 160,
+          right: -80,
+          background: 'radial-gradient(circle, rgba(232,199,122,0.15) 40%, rgba(232,199,122,0) 65%)',
+        }}
         animate={deltas.b}
         transition={blobTransition}
       />

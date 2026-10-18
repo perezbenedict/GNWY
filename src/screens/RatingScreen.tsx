@@ -1,5 +1,6 @@
 import { useRef } from 'react';
 import type { KeyboardEvent } from 'react';
+import { motion } from 'motion/react';
 import { OptionCard } from '../components/OptionCard';
 import { NavButtons } from '../components/NavButtons';
 import { ScreenShell } from '../components/ScreenShell';
@@ -44,18 +45,25 @@ export function RatingScreen({ rating, onSelect, onBack, onNext }: RatingScreenP
       >
         <div role="radiogroup" aria-label="How was service today?" className="flex flex-col gap-3">
           {RATING_OPTIONS.map((option, index) => (
-            <OptionCard
+            <motion.div
               key={option.label}
-              variant="radio"
-              label={option.label}
-              selected={rating === option.value}
-              onSelect={() => onSelect(option.value)}
-              buttonRef={(element) => {
-                optionRefs.current[index] = element;
-              }}
-              tabIndex={rating === option.value || (rating === null && index === 0) ? 0 : -1}
-              onKeyDown={(event) => handleKeyDown(event, index)}
-            />
+              className="w-full"
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4, ease: 'easeOut', delay: Math.min(index * 0.04, 0.4) }}
+            >
+              <OptionCard
+                variant="radio"
+                label={option.label}
+                selected={rating === option.value}
+                onSelect={() => onSelect(option.value)}
+                buttonRef={(element) => {
+                  optionRefs.current[index] = element;
+                }}
+                tabIndex={rating === option.value || (rating === null && index === 0) ? 0 : -1}
+                onKeyDown={(event) => handleKeyDown(event, index)}
+              />
+            </motion.div>
           ))}
         </div>
       </ScreenShell>

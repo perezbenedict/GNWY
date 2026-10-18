@@ -14,9 +14,9 @@ export function Intro({ onStart }: IntroProps) {
       <div className="flex flex-col justify-center">
         <Emblem className="mx-auto mb-5 h-24 w-24 drop-shadow-[0_0_18px_rgba(232,199,122,0.25)] sm:h-28 sm:w-28" />
         <motion.span
-          initial={{ opacity: 0, y: 12 }}
+          initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4, ease: 'easeOut' }}
+          transition={{ duration: 0.45, ease: 'easeOut' }}
           className="mb-6 inline-flex w-fit items-center gap-2 rounded-full border border-lavender/30 bg-surface px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.2em] text-lavender"
         >
           ~30 seconds
@@ -26,9 +26,9 @@ export function Intro({ onStart }: IntroProps) {
           {HEADLINE_WORDS.map((word, index) => (
             <motion.span
               key={word}
-              initial={{ opacity: 0, y: 16 }}
+              initial={{ opacity: 0, y: 14 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.4, ease: 'easeOut', delay: index * 0.08 }}
+              transition={{ duration: 0.5, ease: 'easeOut', delay: 0.06 + index * 0.07 }}
               className={`mr-3 inline-block${index >= 2 ? ' italic' : ''}`}
             >
               {word}
@@ -37,24 +37,24 @@ export function Intro({ onStart }: IntroProps) {
         </h1>
 
         <motion.p
-          initial={{ opacity: 0, y: 12 }}
+          initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4, ease: 'easeOut', delay: 0.36 }}
+          transition={{ duration: 0.45, ease: 'easeOut', delay: 0.36 }}
           className="mt-6 max-w-md text-[17px] leading-[1.65] text-muted"
         >
           Church was more than a service. Tell us what stayed with you.
         </motion.p>
 
         <motion.div
-          initial={{ opacity: 0, y: 12 }}
+          initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4, ease: 'easeOut', delay: 0.44 }}
+          transition={{ duration: 0.45, ease: 'easeOut', delay: 0.44 }}
           className="mt-8"
         >
           <motion.button
             type="button"
             onClick={onStart}
-            whileHover={{ scale: 1.03 }}
+            whileHover={{ y: -1 }}
             whileTap={{ scale: 0.97 }}
             transition={{ type: 'spring', stiffness: 400, damping: 22 }}
             className={`${primaryButtonClass} w-full sm:w-auto`}

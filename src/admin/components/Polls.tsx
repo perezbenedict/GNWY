@@ -55,19 +55,33 @@ function tallyFields(fields: string[], known: readonly string[]): Entry[] {
   return sortEntries([...tally].map(([label, count]) => ({ label, count })));
 }
 
-// No canonical labels exist for expectations (buildPayload keeps it free text),
-// so answers poll as whole strings, deduped case-insensitively.
-function tallyExpectations(fields: string[]): Entry[] {
+// The expectations field never carries data (buildPayload keeps it ''), so panel 4
+// polls what people actually typed in their own words: free-text notes split off
+// the three chip fields ('label - note' tails), deduped case-insensitively.
+const VOICE_SOURCES: Array<[keyof Pick<FeedbackItem, 'liked' | 'disliked' | 'suggestions'>, readonly string[]]> = [
+  ['liked', STOOD_OUT_OPTIONS],
+  ['disliked', IMPROVE_OPTIONS],
+  ['suggestions', NEXT_OPTIONS],
+];
+
+function tallyVoices(items: FeedbackItem[]): Entry[] {
   const tally = new Map<string, Entry>();
-  for (const field of fields) {
-    const answer = field.trim();
-    if (!answer) continue;
+  const add = (voice: string) => {
+    const answer = voice.trim();
+    if (!answer) return;
     const key = answer.toLowerCase();
     const hit = tally.get(key);
     if (hit) hit.count += 1;
     else tally.set(key, { label: answer, count: 1 });
+  };
+  for (const item of items) {
+    for (const [field, known] of VOICE_SOURCES) {
+      for (const voice of countKnownLabels(item[field], known).freeText) add(voice);
+    }
+    add(item.expectations);
   }
-  return sortEntries([...tally.values()]);
+  // Count desc; stable sort keeps newest first among ties.
+  return [...tally.values()].sort((a, b) => b.count - a.count);
 }
 
 function PollPanel({ title, entries, total }: { title: string; entries: Entry[]; total: number }) {
@@ -86,8 +100,9 @@ function PollPanel({ title, entries, total }: { title: string; entries: Entry[];
             <div
               key={entry.label}
               role="img"
-              aria-label={`${entry.label}: ${entry.count} mentions`}
-              className="flex items-center gap-3"
+              aria-label={`${entry.label}: ${entry.count} mention${entry.count === 1 ? '' : 's'}`}
+              title={entry.label}
+              className="flex items-center gap-3 transition-opacity hover:opacity-80"
             >
               <span
                 className={`w-4 shrink-0 text-right text-sm ${
@@ -101,7 +116,7 @@ function PollPanel({ title, entries, total }: { title: string; entries: Entry[];
               </span>
               <Bar percent={maxCount > 0 ? (entry.count / maxCount) * 100 : 0} />
               <span className="shrink-0 text-sm text-muted">
-                {entry.count} mentions · {percent}%
+                {entry.count} mention{entry.count === 1 ? '' : 's'} · {percent}%
               </span>
             </div>
           );
@@ -127,7 +142,7 @@ export default function Polls({ items }: { items: FeedbackItem[] }) {
     items.map((item) => item.suggestions),
     NEXT_OPTIONS,
   );
-  const expected = tallyExpectations(items.map((item) => item.expectations));
+  const voices = tallyVoices(items);
 
   return (
     <section aria-label="Response polls" className="mb-6">
@@ -138,7 +153,7 @@ export default function Polls({ items }: { items: FeedbackItem[] }) {
         <PollPanel title="WHAT MOVED THEM MOST" entries={liked} total={total} />
         <PollPanel title="WHAT DIDN'T LAND" entries={disliked} total={total} />
         <PollPanel title="WHAT WE KEEP HEARING" entries={suggested} total={total} />
-        <PollPanel title="WHAT THEY'RE EXPECTING" entries={expected} total={total} />
+        <PollPanel title="IN THEIR OWN WORDS" entries={voices} total={total} />
       </div>
     </section>
   );

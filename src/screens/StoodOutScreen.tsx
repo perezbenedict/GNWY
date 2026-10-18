@@ -1,3 +1,4 @@
+import { motion } from 'motion/react';
 import { OptionCard } from '../components/OptionCard';
 import { NavButtons } from '../components/NavButtons';
 import { ScreenShell } from '../components/ScreenShell';
@@ -33,13 +34,20 @@ export function StoodOutScreen({ selected, text, onToggle, onTextChange, onBack,
         progress={{ step: 2, total: 5 }}
       >
         <div className="flex flex-wrap gap-2.5" role="group" aria-label="What stood out today">
-          {STOOD_OUT_OPTIONS.map((label) => (
-            <OptionCard
+          {STOOD_OUT_OPTIONS.map((label, index) => (
+            <motion.div
               key={label}
-              label={label}
-              selected={selected.includes(label)}
-              onSelect={() => onToggle(label)}
-            />
+              className="w-full"
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4, ease: 'easeOut', delay: Math.min(index * 0.04, 0.4) }}
+            >
+              <OptionCard
+                label={label}
+                selected={selected.includes(label)}
+                onSelect={() => onToggle(label)}
+              />
+            </motion.div>
           ))}
         </div>
         <div className="mt-6">

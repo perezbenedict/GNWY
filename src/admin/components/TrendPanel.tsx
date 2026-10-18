@@ -52,13 +52,14 @@ function Last14Days({ items }: { items: FeedbackItem[] }) {
             key={day.key}
             role="img"
             aria-label={`${dayLabel(day.date)}: ${responses(day.count)}`}
+            title={`${dayLabel(day.date)}: ${responses(day.count)}`}
             initial={{ scaleY: 0 }}
             animate={{ scaleY: 1 }}
             transition={{ type: 'spring', stiffness: 200, damping: 22, delay: i * 0.03 }}
             style={{
               height: day.count === 0 ? 4 : `${Math.max((day.count / max) * 100, 8)}%`,
             }}
-            className={`min-w-0 flex-1 origin-bottom rounded-t ${
+            className={`min-w-0 flex-1 origin-bottom rounded-t transition-opacity hover:opacity-80 ${
               i === series.length - 1
                 ? 'bg-gradient-to-t from-lavender to-[#B8862F]'
                 : 'bg-lavender/30'
@@ -98,6 +99,7 @@ function TimeOfDay({ items }: { items: FeedbackItem[] }) {
             key={row.name}
             role="img"
             aria-label={`${row.name}: ${row.count} responses`}
+            title={`${row.label}: ${row.count} responses`}
             className="flex items-center gap-3"
           >
             <span className="min-w-0 max-w-[55%] truncate text-sm text-ink">{row.label}</span>

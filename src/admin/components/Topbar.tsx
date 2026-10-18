@@ -1,8 +1,9 @@
-import { motion } from 'motion/react';
+import { motion, useReducedMotion } from 'motion/react';
 import { Lock } from 'lucide-react';
 import { Emblem } from '../../components/Emblem';
 
 export function Topbar({ onLock }: { onLock: () => void }) {
+  const reducedMotion = useReducedMotion();
   return (
     <motion.header
       initial={{ opacity: 0 }}
@@ -12,7 +13,18 @@ export function Topbar({ onLock }: { onLock: () => void }) {
     >
       <div className="mx-auto flex w-full max-w-5xl items-center justify-between gap-4 px-4 py-3 sm:px-6">
         <div className="flex min-w-0 items-center gap-3">
-          <Emblem className="h-8 w-8 shrink-0" />
+          {reducedMotion ? (
+            <Emblem className="h-8 w-8 shrink-0" />
+          ) : (
+            <motion.div
+              className="h-8 w-8 shrink-0"
+              initial={false}
+              animate={{ rotate: 360 }}
+              transition={{ duration: 24, repeat: Infinity, ease: 'linear' }}
+            >
+              <Emblem className="h-full w-full" />
+            </motion.div>
+          )}
           <h1 className="min-w-0 truncate text-sm font-medium text-muted sm:text-base">
             <span className="font-display text-base font-semibold text-ink sm:text-lg">
               Grace Nation Wealthy Youths

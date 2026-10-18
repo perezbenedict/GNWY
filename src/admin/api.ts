@@ -39,22 +39,35 @@ async function apiFetch(path: string, options: RequestInit = {}): Promise<Respon
   return res;
 }
 
-export async function listFeedback(filters: {
+export interface VaultFilters {
   q: string;
   minRating: string;
   category: string;
-}): Promise<{ items: FeedbackItem[]; summary: Summary }> {
+  dateFrom?: string;
+  dateTo?: string;
+  followUp?: 'all' | 'with';
+}
+
+function filterParams(filters: VaultFilters): URLSearchParams {
   const params = new URLSearchParams();
   if (filters.q) params.set('q', filters.q);
   if (filters.minRating) params.set('minRating', filters.minRating);
   if (filters.category) params.set('category', filters.category);
-  const query = params.toString();
+  if (filters.dateFrom) params.set('dateFrom', filters.dateFrom);
+  if (filters.dateTo) params.set('dateTo', filters.dateTo);
+  if (filters.followUp && filters.followUp !== 'all') params.set('followUp', filters.followUp);
+  return params;
+}
+
+export async function listFeedback(filters: VaultFilters): Promise<{ items: FeedbackItem[]; summary: Summary }> {
+  const query = filterParams(filters).toString();
   const res = await apiFetch('/api/feedback' + (query ? '?' + query : ''));
   return res.json();
 }
 
-export async function exportCsv(): Promise<Response> {
-  return apiFetch('/api/feedback/export.csv');
+export async function exportCsv(filters: VaultFilters): Promise<Response> {
+  const query = filterParams(filters).toString();
+  return apiFetch('/api/feedback/export.csv' + (query ? '?' + query : ''));
 }
 
 export async function discardFeedback(id: string): Promise<Response> {

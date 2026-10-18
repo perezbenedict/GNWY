@@ -1,7 +1,11 @@
+import { useEffect, useState } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
 import { Emblem } from '../../components/Emblem';
 import { ResponseCard } from './ResponseCard';
+import { ResponseDetail } from './ResponseDetail';
 import type { FeedbackItem, SortMode } from '../types';
+
+const PAGE_SIZE = 25;
 
 const SHIMMER_BAR =
   'animate-[shimmer_2.5s_linear_infinite] rounded-full bg-white/5';
@@ -100,8 +104,19 @@ export function FeedbackList({
   onRetry: () => void;
   onDiscard: (id: string) => void;
 }) {
+  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+
+  // Re-cap the list when filtering shrinks it below what is currently shown.
+  useEffect(() => {
+    setVisibleCount((count) => (items.length < count ? PAGE_SIZE : count));
+  }, [items.length]);
+
+  const selected = (selectedId && items.find((item) => item.id === selectedId)) || null;
   const sorted = sortItems(items, sort);
   const grouped = sort === 'new' || sort === 'old';
+  const visible = sorted.slice(0, visibleCount);
+  const remaining = sorted.length - visibleCount;
 
   return (
     <section aria-live="polite" aria-busy={loading}>
@@ -144,7 +159,7 @@ export function FeedbackList({
         </motion.div>
       ) : grouped ? (
         <div className="space-y-6">
-          {groupByDay(sorted).map((group) => (
+          {groupByDay(visible).map((group) => (
             <div key={group.key} className="space-y-4">
               <motion.h3
                 initial={{ opacity: 0, y: 4 }}
@@ -164,6 +179,7 @@ export function FeedbackList({
                     item={item}
                     index={group.startIndex + offset}
                     onDiscard={onDiscard}
+                    onOpen={() => setSelectedId(item.id)}
                   />
                 ))}
               </AnimatePresence>
@@ -173,12 +189,34 @@ export function FeedbackList({
       ) : (
         <div className="space-y-4">
           <AnimatePresence initial={false}>
-            {sorted.map((item, index) => (
-              <ResponseCard key={item.id} item={item} index={index} onDiscard={onDiscard} />
+            {visible.map((item, index) => (
+              <ResponseCard
+                key={item.id}
+                item={item}
+                index={index}
+                onDiscard={onDiscard}
+                onOpen={() => setSelectedId(item.id)}
+              />
             ))}
           </AnimatePresence>
         </div>
       )}
+
+      {!loading && !error && remaining > 0 ? (
+        <div className="mt-6 flex justify-center">
+          <button
+            type="button"
+            onClick={() => setVisibleCount(sorted.length)}
+            className="inline-flex h-11 items-center rounded-lg border border-white/15 px-5 text-xs font-semibold uppercase tracking-[0.16em] text-muted transition hover:border-lavender/40 hover:text-ink focus:outline-none focus:ring-2 focus:ring-lavender/40"
+          >
+            Show {remaining} more
+          </button>
+        </div>
+      ) : null}
+
+      <AnimatePresence>
+        {selected ? <ResponseDetail item={selected} onClose={() => setSelectedId(null)} /> : null}
+      </AnimatePresence>
     </section>
   );
 }

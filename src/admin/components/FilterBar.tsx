@@ -8,26 +8,39 @@ interface FilterBarProps {
   minRating: string;
   category: string;
   sort: SortMode;
+  dateFrom?: string;
+  dateTo?: string;
+  followUp?: 'all' | 'with';
   onQueryChange: (value: string) => void;
   onMinRatingChange: (value: string) => void;
   onCategoryChange: (value: string) => void;
   onSortChange: (value: SortMode) => void;
+  onDateFromChange?: (value: string) => void;
+  onDateToChange?: (value: string) => void;
+  onFollowUpChange?: (value: 'all' | 'with') => void;
   onClear: () => void;
 }
 
 const SELECT_CLASS =
   'h-12 w-full rounded-xl border border-white/10 bg-surface px-4 text-sm text-ink outline-none transition focus:border-lavender/50 focus:ring-2 focus:ring-lavender/40';
 const LABEL_CLASS = 'mb-2 block text-sm font-medium text-ink';
+const MICRO_LABEL_CLASS = 'mb-2 block text-[11px] font-semibold uppercase tracking-[0.16em] text-muted';
 
 export function FilterBar({
   query,
   minRating,
   category,
   sort,
+  dateFrom,
+  dateTo,
+  followUp,
   onQueryChange,
   onMinRatingChange,
   onCategoryChange,
   onSortChange,
+  onDateFromChange,
+  onDateToChange,
+  onFollowUpChange,
   onClear,
 }: FilterBarProps) {
   return (
@@ -109,6 +122,51 @@ export function FilterBar({
           <option value="low">Low rating</option>
         </select>
       </div>
+      {onDateFromChange ? (
+        <div>
+          <label htmlFor="filter-from" className={MICRO_LABEL_CLASS}>
+            From
+          </label>
+          <input
+            id="filter-from"
+            type="date"
+            value={dateFrom ?? ''}
+            onChange={(event) => onDateFromChange(event.target.value)}
+            // Native date pickers follow the input's color scheme on the dark surface.
+            className={`${SELECT_CLASS} [color-scheme:dark]`}
+          />
+        </div>
+      ) : null}
+      {onDateToChange ? (
+        <div>
+          <label htmlFor="filter-to" className={MICRO_LABEL_CLASS}>
+            To
+          </label>
+          <input
+            id="filter-to"
+            type="date"
+            value={dateTo ?? ''}
+            onChange={(event) => onDateToChange(event.target.value)}
+            className={`${SELECT_CLASS} [color-scheme:dark]`}
+          />
+        </div>
+      ) : null}
+      {onFollowUpChange ? (
+        <div>
+          <label htmlFor="filter-follow-up" className={MICRO_LABEL_CLASS}>
+            Follow-up
+          </label>
+          <select
+            id="filter-follow-up"
+            value={followUp ?? 'all'}
+            onChange={(event) => onFollowUpChange(event.target.value as 'all' | 'with')}
+            className={SELECT_CLASS}
+          >
+            <option value="all">All responses</option>
+            <option value="with">Follow-up only</option>
+          </select>
+        </div>
+      ) : null}
       <div className="flex items-end">
         <button
           type="button"

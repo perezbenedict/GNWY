@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react';
+import { motion } from 'motion/react';
 import { OptionCard } from '../components/OptionCard';
 import { NavButtons } from '../components/NavButtons';
 import { ScreenShell } from '../components/ScreenShell';
@@ -52,13 +53,20 @@ export function NextScreen({
         progress={{ step: 4, total: 5 }}
       >
         <div className="flex flex-col gap-3" role="group" aria-label="What should we do more of">
-          {NEXT_OPTIONS.map((label) => (
-            <OptionCard
+          {NEXT_OPTIONS.map((label, index) => (
+            <motion.div
               key={label}
-              label={label}
-              selected={selected.includes(label)}
-              onSelect={() => onToggle(label)}
-            />
+              className="w-full"
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4, ease: 'easeOut', delay: Math.min(index * 0.04, 0.4) }}
+            >
+              <OptionCard
+                label={label}
+                selected={selected.includes(label)}
+                onSelect={() => onToggle(label)}
+              />
+            </motion.div>
           ))}
         </div>
         <div className="mt-6">

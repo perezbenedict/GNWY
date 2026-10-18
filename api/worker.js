@@ -146,6 +146,28 @@ function listWhere(url) {
     params.push(since);
   }
 
+  const dateFrom = url.searchParams.get('dateFrom');
+  if (dateFrom) {
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(dateFrom)) return { error: 'dateFrom must be YYYY-MM-DD' };
+    where.push('date(created_at) >= date(?)');
+    params.push(dateFrom);
+  }
+
+  const dateTo = url.searchParams.get('dateTo');
+  if (dateTo) {
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(dateTo)) return { error: 'dateTo must be YYYY-MM-DD' };
+    where.push('date(created_at) <= date(?)');
+    params.push(dateTo);
+  }
+
+  const followUp = url.searchParams.get('followUp');
+  if (followUp === 'with') {
+    // Only voluntarily-submitted contact details count as follow-ups.
+    where.push("TRIM(COALESCE(contact, '')) != ''");
+  } else if (followUp && followUp !== 'all') {
+    return { error: 'followUp must be all or with' };
+  }
+
   return { sql: where.length ? ' WHERE ' + where.join(' AND ') : '', params };
 }
 
@@ -196,7 +218,6 @@ async function handleList(request, env) {
 }
 
 /* ---------- admin: CSV export ---------- */
-// TO BE FIXED AND IMPLEMENTED FOR BETTER VIEW ESPECIALLY WHEN IT WAS CREATED
 
 function csvField(value) {
   const s = value === null || value === undefined ? '' : String(value);
@@ -206,10 +227,20 @@ function csvField(value) {
 async function handleExport(request, env) {
   if (!isAuthorized(request, env)) return json({ error: 'unauthorized' }, 401);
 
+  // Export honors the exact same filters as the list so an export never
+  // silently drops what the admin had filtered (or includes what they hid).
+  const url = new URL(request.url);
+  const filter = listWhere(url);
+  if (filter.error) return json({ error: filter.error }, 400);
+
   const rows = await env.DB.prepare(
     'SELECT id, created_at, rating, categories, liked, disliked, suggestions, expectations, name, contact ' +
-      'FROM feedback ORDER BY created_at DESC'
-  ).all();
+      'FROM feedback' +
+      filter.sql +
+      ' ORDER BY created_at DESC'
+  )
+    .bind(...filter.params)
+    .all();
 
   const header = 'id,created_at,rating,categories,liked,disliked,suggestions,expectations,name,contact';
   const lines = rows.results.map((r) =>
