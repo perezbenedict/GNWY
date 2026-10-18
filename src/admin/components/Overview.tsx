@@ -4,6 +4,7 @@ import { animate, motion, useMotionValue, useReducedMotion, useTransform } from 
 import { ArrowDown, ArrowRight, ArrowUp, MessageSquare } from 'lucide-react';
 import type { FeedbackItem } from '../types';
 import { computeOverview } from '../lib/overview';
+import type { DrillTarget } from '../lib/overview';
 import { Stars } from './StatCards';
 
 function CountUp({ value, decimals = 0 }: { value: number; decimals?: number }) {
@@ -16,7 +17,11 @@ function CountUp({ value, decimals = 0 }: { value: number; decimals?: number }) 
       motionValue.set(value);
       return;
     }
-    const controls = animate(motionValue, value, { duration: 0.9, ease: 'easeOut' });
+    // Expo-out feel: slower and more fluid than the old easeOut count.
+    const controls = animate(motionValue, value, {
+      duration: 1.4,
+      ease: [0.16, 1, 0.3, 1],
+    });
     return () => controls.stop();
   }, [motionValue, value, reduced]);
 
@@ -42,12 +47,22 @@ function StatCard({ entry, index }: { entry: CardEntry; index: number }) {
       />
       <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted">{entry.label}</p>
       <div className="mt-3 min-w-0">{entry.content}</div>
+      {entry.onClick ? (
+        <span
+          aria-hidden="true"
+          className="pointer-events-none absolute bottom-3 right-4 text-sm text-lavender opacity-0 transition-opacity duration-200 group-hover:opacity-100 group-focus-visible:opacity-100"
+        >
+          →
+        </span>
+      ) : null}
     </>
   );
   const shared =
     'relative min-w-0 overflow-hidden rounded-2xl border border-white/10 bg-surface p-5';
 
   if (entry.onClick) {
+    // The hover lift carries its own transition so the entrance stagger delay
+    // never delays the lift; reduced motion skips the transform entirely.
     return (
       <motion.button
         type="button"
@@ -55,8 +70,11 @@ function StatCard({ entry, index }: { entry: CardEntry; index: number }) {
         aria-label={entry.ariaLabel}
         initial={reduced ? false : { opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ type: 'spring', stiffness: 260, damping: 26, delay: index * 0.05 }}
-        className={`${shared} w-full cursor-pointer text-left transition hover:border-lavender/40 focus:outline-none focus-visible:ring-2 focus-visible:ring-lavender/60`}
+        transition={{ type: 'spring', stiffness: 260, damping: 26, delay: index * 0.08 }}
+        whileHover={
+          reduced ? undefined : { y: -2, transition: { type: 'spring', stiffness: 400, damping: 30 } }
+        }
+        className={`${shared} group w-full cursor-pointer text-left transition-[border-color,background-color] duration-200 hover:border-lavender/40 hover:bg-[#171D2A] focus:outline-none focus-visible:ring-2 focus-visible:ring-lavender/60`}
       >
         {body}
       </motion.button>
@@ -66,10 +84,90 @@ function StatCard({ entry, index }: { entry: CardEntry; index: number }) {
     <motion.article
       initial={reduced ? false : { opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ type: 'spring', stiffness: 260, damping: 26, delay: index * 0.05 }}
+      transition={{ type: 'spring', stiffness: 260, damping: 26, delay: index * 0.08 }}
       className={shared}
     >
       {body}
+    </motion.article>
+  );
+}
+
+function RankingCard({
+  title,
+  entries,
+  emptyLine,
+  index,
+  onDrillIn,
+}: {
+  title: string;
+  entries: { label: string; count: number }[];
+  emptyLine: string;
+  index: number;
+  onDrillIn?: (target: DrillTarget) => void;
+}) {
+  const reduced = useReducedMotion() === true;
+  const maxCount = entries.length > 0 ? entries[0].count : 0;
+
+  return (
+    <motion.article
+      initial={reduced ? false : { opacity: 0, y: 12 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ type: 'spring', stiffness: 260, damping: 26, delay: index * 0.08 }}
+      className="relative min-w-0 overflow-hidden rounded-2xl border border-white/10 bg-surface p-5"
+    >
+      <span
+        aria-hidden="true"
+        className="absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r from-lavender to-[#B8862F]"
+      />
+      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted">{title}</p>
+      {entries.length === 0 ? (
+        <p className="mt-3 text-sm text-muted">{emptyLine}</p>
+      ) : (
+        <ul className="mt-3 flex flex-col gap-2">
+          {entries.map((entry) => {
+            const percent = maxCount > 0 ? (entry.count / maxCount) * 100 : 0;
+            const content = (
+              <>
+                {/* Slim proportional bar behind the row: visual weight only, never a number. */}
+                <span
+                  aria-hidden="true"
+                  className="absolute left-0 top-1/2 h-1 -translate-y-1/2 rounded-full bg-lavender/20"
+                  style={{ width: `${percent}%` }}
+                />
+                <span className="relative min-w-0 flex-1 truncate text-sm text-ink">
+                  {entry.label}
+                </span>
+                <span className="relative shrink-0 text-xs font-medium text-muted tabular-nums">
+                  {entry.count} submissions
+                </span>
+              </>
+            );
+            const rowBase =
+              'relative flex w-full min-w-0 items-center gap-3 overflow-hidden rounded-lg border border-transparent px-2 py-1.5';
+            return (
+              <li key={entry.label}>
+                {onDrillIn ? (
+                  <button
+                    type="button"
+                    onClick={() => onDrillIn({ section: 'responses', q: entry.label })}
+                    className={`${rowBase} group cursor-pointer text-left transition-[border-color,background-color,transform] duration-200 hover:-translate-y-0.5 hover:border-lavender/40 hover:bg-[#171D2A] focus:outline-none focus-visible:ring-2 focus-visible:ring-lavender/60`}
+                  >
+                    {content}
+                    <span
+                      aria-hidden="true"
+                      className="relative shrink-0 text-lavender opacity-0 transition-opacity duration-200 group-hover:opacity-100 group-focus-visible:opacity-100"
+                    >
+                      →
+                    </span>
+                  </button>
+                ) : (
+                  <div className={rowBase}>{content}</div>
+                )}
+              </li>
+            );
+          })}
+        </ul>
+      )}
     </motion.article>
   );
 }
@@ -92,7 +190,7 @@ export default function Overview({
   onDrillIn,
 }: {
   items: FeedbackItem[];
-  onDrillIn?: (filter: { category?: string; rating?: number }) => void;
+  onDrillIn?: (target: DrillTarget) => void;
 }) {
   const reduced = useReducedMotion() === true;
   if (items.length === 0) return null;
@@ -124,6 +222,7 @@ export default function Overview({
             <Stars value={stats.avgRating} />
           </div>
         ),
+      onClick: onDrillIn ? () => onDrillIn({ section: 'analytics' }) : undefined,
     },
     {
       label: 'Positive',
@@ -136,6 +235,7 @@ export default function Overview({
           <p className="mt-1 text-xs text-muted">Neutral {stats.neutral}</p>
         </>
       ),
+      onClick: onDrillIn ? () => onDrillIn({ section: 'responses', minRating: 4 }) : undefined,
     },
     {
       label: 'Needs attention',
@@ -145,6 +245,7 @@ export default function Overview({
           <span className="text-sm font-semibold text-crimson">{stats.negativePct}%</span>
         </p>
       ),
+      onClick: onDrillIn ? () => onDrillIn({ section: 'responses', maxRating: 2 }) : undefined,
     },
     {
       label: 'Top category',
@@ -159,7 +260,9 @@ export default function Overview({
         <span className="text-sm text-muted">No categories yet</span>
       ),
       onClick:
-        onDrillIn && topCategory ? () => onDrillIn({ category: topCategory.label }) : undefined,
+        onDrillIn && topCategory
+          ? () => onDrillIn({ section: 'responses', category: topCategory.label })
+          : undefined,
       ariaLabel: topCategory ? `View responses in ${topCategory.label}` : undefined,
     },
     {
@@ -195,6 +298,7 @@ export default function Overview({
           <span className="text-sm text-muted">{stats.followUpPct}%</span>
         </div>
       ),
+      onClick: onDrillIn ? () => onDrillIn({ section: 'responses', followUp: 'with' }) : undefined,
     },
   ];
 
@@ -222,11 +326,32 @@ export default function Overview({
           <StatCard key={card.label} entry={card} index={index} />
         ))}
       </div>
+      <div className="mt-4 grid grid-cols-1 items-start gap-4 sm:grid-cols-2">
+        <RankingCard
+          title="Top requests"
+          entries={stats.topRequests}
+          emptyLine="No requests in the feedback yet."
+          index={cards.length}
+          onDrillIn={onDrillIn}
+        />
+        <RankingCard
+          title="Top complaints"
+          entries={stats.topComplaints}
+          emptyLine="No improvement points in the feedback yet."
+          index={cards.length + 1}
+          onDrillIn={onDrillIn}
+        />
+      </div>
       {comparison ? (
         <motion.div
           initial={reduced ? false : { opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ type: 'spring', stiffness: 260, damping: 26, delay: cards.length * 0.05 }}
+          transition={{
+            type: 'spring',
+            stiffness: 260,
+            damping: 26,
+            delay: (cards.length + 2) * 0.08,
+          }}
           className="mt-4 flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1 rounded-2xl border border-white/10 bg-surface p-4"
         >
           <DeltaArrow aria-hidden="true" className={`h-4 w-4 shrink-0 ${deltaTone}`} />

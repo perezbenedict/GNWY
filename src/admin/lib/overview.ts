@@ -1,6 +1,18 @@
 import { IMPROVE_OPTIONS } from '../../screens/ImproveScreen';
 import { NEXT_OPTIONS } from '../../screens/NextScreen';
 import type { FeedbackItem } from '../types';
+import { countKnownLabels, topN } from './insights';
+
+// Navigation target for the dashboard's drill-down: cards point at a section,
+// optionally narrowing with one honest server-side filter.
+export interface DrillTarget {
+  section: 'analytics' | 'responses';
+  q?: string;
+  category?: string;
+  minRating?: number;
+  maxRating?: number;
+  followUp?: 'with';
+}
 
 export interface OverviewStats {
   total: number;
@@ -14,6 +26,8 @@ export interface OverviewStats {
   topCategory: { label: string; count: number } | null;
   topActivity: { label: string; count: number } | null;
   topComplaint: { label: string; count: number } | null;
+  topRequests: { label: string; count: number }[];
+  topComplaints: { label: string; count: number }[];
   withComments: number;
   followUps: number;
   followUpPct: number;
@@ -101,6 +115,29 @@ function topChip(fields: string[], options: readonly string[]): { label: string;
   return topEntry(counts);
 }
 
+// Ranking derivation: one vote per response per canonical option found as a chip
+// in the payload field buildPayload actually writes it to (NextScreen chips ->
+// suggestions, ImproveScreen chips -> disliked, free text joined with ', ' or
+// appended after ' - '). countKnownLabels strips ' - ' tails, matches
+// case-insensitively and dedupes within a response. Ranked by count desc then
+// label asc, counts > 0 only, capped at 5 entries.
+function rankChips(
+  fields: string[],
+  options: readonly string[],
+): { label: string; count: number }[] {
+  const totals = new Map<string, number>();
+  for (const field of fields) {
+    for (const { label } of countKnownLabels(field, options).counts) {
+      totals.set(label, (totals.get(label) ?? 0) + 1);
+    }
+  }
+  const ranked = [...totals]
+    .map(([label, count]) => ({ label, count }))
+    .filter((entry) => entry.count > 0)
+    .sort((a, b) => b.count - a.count || a.label.localeCompare(b.label));
+  return topN(ranked, 5);
+}
+
 export function computeOverview(items: FeedbackItem[]): OverviewStats {
   const total = items.length;
   let rated = 0;
@@ -186,6 +223,14 @@ export function computeOverview(items: FeedbackItem[]): OverviewStats {
       NEXT_OPTIONS,
     ),
     topComplaint: topChip(
+      items.map((item) => item.disliked),
+      IMPROVE_OPTIONS,
+    ),
+    topRequests: rankChips(
+      items.map((item) => item.suggestions),
+      NEXT_OPTIONS,
+    ),
+    topComplaints: rankChips(
       items.map((item) => item.disliked),
       IMPROVE_OPTIONS,
     ),

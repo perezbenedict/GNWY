@@ -4,6 +4,7 @@ import { motion } from 'motion/react';
 import { X } from 'lucide-react';
 import { Stars } from './StatCards';
 import { SentimentBadge } from './ResponseCard';
+import { classifyContact, getWhatsAppLink } from '../lib/whatsapp';
 import type { FeedbackItem } from '../types';
 
 function formatDateTime(value: string): string {
@@ -87,6 +88,8 @@ export function ResponseDetail({ item, onClose }: { item: FeedbackItem; onClose:
     : /\d/.test(contact)
       ? `tel:${contact.replace(/[^\d+]/g, '')}`
       : null;
+  const contactKind = contact ? classifyContact(item.contact) : 'empty';
+  const waLink = contactKind === 'phone' ? getWhatsAppLink(contact) : null;
   const categories = String(item.categories || '')
     .split(',')
     .map((part) => part.trim())
@@ -151,6 +154,24 @@ export function ResponseDetail({ item, onClose }: { item: FeedbackItem; onClose:
             <p className="mt-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-muted">
               For follow-up only
             </p>
+            {waLink ? (
+              <div className="mt-3">
+                <a
+                  href={waLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex h-11 items-center rounded-xl border border-lavender/40 bg-lavender/10 px-4 text-xs font-semibold uppercase tracking-[0.14em] text-lavender transition hover:bg-lavender/20 focus:outline-none focus:ring-2 focus:ring-lavender/40"
+                >
+                  WhatsApp {name || contact}
+                </a>
+                <p className="mt-1.5 text-[11px] text-muted">
+                  Opens WhatsApp - you review and send the message yourself.
+                </p>
+              </div>
+            ) : null}
+            {contactKind === 'invalid' ? (
+              <p className="mt-2 text-sm text-muted">Contact details not usable - reach out another way.</p>
+            ) : null}
           </div>
         ) : null}
 

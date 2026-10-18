@@ -22,6 +22,34 @@ export function Stars({ value }: { value: number | null }) {
   );
 }
 
+const EXPO_OUT: [number, number, number, number] = [0.16, 1, 0.3, 1];
+
+// Cubic-bezier solver so the rAF count-up follows motion's ease array exactly.
+function cubicBezierEase([p1x, p1y, p2x, p2y]: [number, number, number, number]) {
+  const cx = 3 * p1x;
+  const bx = 3 * (p2x - p1x) - cx;
+  const ax = 1 - cx - bx;
+  const cy = 3 * p1y;
+  const by = 3 * (p2y - p1y) - cy;
+  const ay = 1 - cy - by;
+  const sampleX = (t: number) => ((ax * t + bx) * t + cx) * t;
+  const sampleY = (t: number) => ((ay * t + by) * t + cy) * t;
+  const sampleDX = (t: number) => (3 * ax * t + 2 * bx) * t + cx;
+  return (x: number) => {
+    let t = x;
+    for (let i = 0; i < 8; i++) {
+      const err = sampleX(t) - x;
+      if (Math.abs(err) < 1e-5) break;
+      const d = sampleDX(t);
+      if (Math.abs(d) < 1e-6) break;
+      t -= err / d;
+    }
+    return sampleY(t);
+  };
+}
+
+const easeExpoOut = cubicBezierEase(EXPO_OUT);
+
 function CountUp({ value }: { value: number | null }) {
   const [display, setDisplay] = useState<number | null>(value === null ? null : 0);
 
@@ -34,11 +62,11 @@ function CountUp({ value }: { value: number | null }) {
       setDisplay(value);
       return;
     }
-    const duration = 600;
+    const duration = 1400;
     const start = performance.now();
     let frame = requestAnimationFrame(function tick(now: number) {
       const t = Math.min(1, (now - start) / duration);
-      const eased = 1 - Math.pow(1 - t, 3);
+      const eased = easeExpoOut(t);
       setDisplay(Math.round(value * eased));
       if (t < 1) frame = requestAnimationFrame(tick);
     });
@@ -46,7 +74,7 @@ function CountUp({ value }: { value: number | null }) {
   }, [value]);
 
   if (display === null) return <span className="text-3xl font-semibold text-muted">—</span>;
-  return <span className="text-3xl font-semibold text-ink">{display}</span>;
+  return <span className="text-3xl font-semibold tabular-nums text-ink">{display}</span>;
 }
 
 function topCategory(summary: Summary | null): { name: string; count: number } | null {
@@ -97,9 +125,9 @@ export function StatCards({ summary }: { summary: Summary | null }) {
       {cards.map((card, index) => (
         <motion.article
           key={card.label}
-          initial={{ opacity: 0, y: 12 }}
+          initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ type: 'spring', stiffness: 260, damping: 26, delay: index * 0.06 }}
+          transition={{ duration: 0.55, ease: EXPO_OUT, delay: index * 0.08 }}
           className="rounded-2xl border border-lavender/10 bg-surface p-5"
         >
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted">{card.label}</p>

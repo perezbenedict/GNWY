@@ -1,7 +1,7 @@
-import { useEffect, useRef, useState } from 'react';
 import { motion } from 'motion/react';
-import { MessageSquare, Trash2, X } from 'lucide-react';
+import { MessageSquare, Trash2 } from 'lucide-react';
 import { Stars } from './StatCards';
+import { classifyContact, getWhatsAppLink } from '../lib/whatsapp';
 import type { FeedbackItem } from '../types';
 
 function formatTimestamp(value: string): string {
@@ -57,34 +57,31 @@ export function SentimentBadge({ rating }: { rating: number | null }) {
 export function ResponseCard({
   item,
   index,
-  onDiscard,
+  onDiscardRequest,
   onOpen,
+  selected,
+  onToggleSelect,
 }: {
   item: FeedbackItem;
   index: number;
-  onDiscard: (id: string) => void;
+  onDiscardRequest?: (item: FeedbackItem) => void;
   onOpen: () => void;
+  selected?: boolean;
+  onToggleSelect?: (id: string, selected: boolean) => void;
 }) {
-  const [confirming, setConfirming] = useState(false);
-  const confirmRef = useRef<HTMLButtonElement>(null);
-
-  // Two-step discard: focus the confirm button and auto-revert after 4s.
-  useEffect(() => {
-    if (!confirming) return;
-    confirmRef.current?.focus();
-    const timer = window.setTimeout(() => setConfirming(false), 4000);
-    return () => window.clearTimeout(timer);
-  }, [confirming]);
-
   const categories = String(item.categories || '')
     .split(',')
     .map((part) => part.trim())
     .filter(Boolean);
+  const name = String(item.name ?? '').trim();
+  const contact = String(item.contact ?? '').trim();
   const who = [item.name, item.contact]
     .map((part) => String(part ?? '').trim())
     .filter(Boolean)
     .join(' · ');
-  const hasContact = Boolean(String(item.contact ?? '').trim());
+  const hasContact = Boolean(contact);
+  const contactKind = classifyContact(item.contact);
+  const waLink = contactKind === 'phone' ? getWhatsAppLink(contact) : null;
 
   return (
     <motion.article
@@ -106,6 +103,17 @@ export function ResponseCard({
     >
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex min-w-0 flex-wrap items-center gap-3">
+          {onToggleSelect ? (
+            <label className="-ml-2 inline-flex h-11 w-11 cursor-pointer items-center justify-center">
+              <input
+                type="checkbox"
+                checked={Boolean(selected)}
+                onChange={(event) => onToggleSelect(item.id, event.target.checked)}
+                aria-label={`Select response from ${name || 'anonymous respondent'}`}
+                className="h-4 w-4 accent-lavender"
+              />
+            </label>
+          ) : null}
           <time dateTime={item.created_at} className="text-sm text-muted">
             {formatTimestamp(item.created_at)}
           </time>
@@ -117,40 +125,26 @@ export function ResponseCard({
               Follow-up
             </span>
           ) : null}
+          {waLink ? (
+            <a
+              href={waLink}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label={`Open WhatsApp chat with ${name || 'respondent'}`}
+              className="inline-flex h-11 items-center rounded-full border border-lavender/40 bg-lavender/10 px-3 text-[11px] font-semibold uppercase tracking-[0.12em] text-lavender transition hover:bg-lavender/20 focus:outline-none focus:ring-2 focus:ring-lavender/40"
+            >
+              WhatsApp
+            </a>
+          ) : null}
         </div>
-        {confirming ? (
-          <div className="flex items-center gap-2">
-            <button
-              ref={confirmRef}
-              type="button"
-              onClick={() => {
-                setConfirming(false);
-                onDiscard(item.id);
-              }}
-              className="inline-flex h-11 items-center gap-2 rounded-xl border border-crimson/60 bg-crimson/10 px-4 text-xs font-semibold uppercase tracking-[0.14em] text-crimson transition hover:bg-crimson/20 focus:outline-none focus:ring-2 focus:ring-crimson/40"
-            >
-              <Trash2 className="h-4 w-4" aria-hidden="true" />
-              Discard?
-            </button>
-            <button
-              type="button"
-              aria-label="Cancel discard"
-              onClick={() => setConfirming(false)}
-              className="inline-flex h-11 w-11 items-center justify-center rounded-xl border border-white/10 text-muted transition hover:border-white/25 hover:text-ink focus:outline-none focus:ring-2 focus:ring-lavender/40"
-            >
-              <X className="h-4 w-4" aria-hidden="true" />
-            </button>
-          </div>
-        ) : (
-          <button
-            type="button"
-            onClick={() => setConfirming(true)}
-            className="inline-flex h-11 items-center gap-2 rounded-xl border border-crimson/30 px-4 text-xs font-semibold uppercase tracking-[0.14em] text-muted transition hover:border-crimson/60 hover:text-crimson focus:outline-none focus:ring-2 focus:ring-crimson/40"
-          >
-            <Trash2 className="h-4 w-4" aria-hidden="true" />
-            Discard
-          </button>
-        )}
+        <button
+          type="button"
+          onClick={() => onDiscardRequest?.(item)}
+          className="inline-flex h-11 items-center gap-2 rounded-xl border border-crimson/30 px-4 text-xs font-semibold uppercase tracking-[0.14em] text-muted transition hover:border-crimson/60 hover:text-crimson focus:outline-none focus:ring-2 focus:ring-crimson/40"
+        >
+          <Trash2 className="h-4 w-4" aria-hidden="true" />
+          Discard
+        </button>
       </div>
 
       <div

@@ -6,6 +6,7 @@ import type { SortMode } from '../types';
 interface FilterBarProps {
   query: string;
   minRating: string;
+  maxRating?: string;
   category: string;
   sort: SortMode;
   dateFrom?: string;
@@ -13,6 +14,7 @@ interface FilterBarProps {
   followUp?: 'all' | 'with';
   onQueryChange: (value: string) => void;
   onMinRatingChange: (value: string) => void;
+  onMaxRatingChange?: (value: string) => void;
   onCategoryChange: (value: string) => void;
   onSortChange: (value: SortMode) => void;
   onDateFromChange?: (value: string) => void;
@@ -29,6 +31,7 @@ const MICRO_LABEL_CLASS = 'mb-2 block text-[11px] font-semibold uppercase tracki
 export function FilterBar({
   query,
   minRating,
+  maxRating,
   category,
   sort,
   dateFrom,
@@ -36,6 +39,7 @@ export function FilterBar({
   followUp,
   onQueryChange,
   onMinRatingChange,
+  onMaxRatingChange,
   onCategoryChange,
   onSortChange,
   onDateFromChange,
@@ -88,6 +92,23 @@ export function FilterBar({
           <option value="1">1+ star</option>
         </select>
       </div>
+      {onMaxRatingChange ? (
+        <div>
+          <label htmlFor="filter-max-rating" className={LABEL_CLASS}>
+            Maximum rating
+          </label>
+          <select
+            id="filter-max-rating"
+            value={maxRating ?? ''}
+            onChange={(event) => onMaxRatingChange(event.target.value)}
+            className={SELECT_CLASS}
+          >
+            <option value="">Any rating</option>
+            <option value="2">2 or less</option>
+            <option value="1">1 star</option>
+          </select>
+        </div>
+      ) : null}
       <div>
         <label htmlFor="filter-category" className={LABEL_CLASS}>
           Category

@@ -16,7 +16,7 @@ const MAX_TEXT = 5000;
 const CORS_HEADERS = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Methods': 'GET,POST,DELETE,OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type,Authorization',
+  'Access-Control-Allow-Headers': 'Content-Type,Authorization,X-Reauth',
 };
 
 function json(body, status = 200) {
@@ -29,6 +29,14 @@ function json(body, status = 200) {
 function isAuthorized(request, env) {
   if (!env.ADMIN_TOKEN) return false; // refuse everything if the token is unset
   return request.headers.get('Authorization') === 'Bearer ' + env.ADMIN_TOKEN;
+}
+
+// Destructive operations additionally require the admin to re-enter the key;
+// it arrives in the X-Reauth header and is never logged.
+function reauthOk(request, env) {
+  const reauth = request.headers.get('X-Reauth');
+  if (reauth === null) return false;
+  return reauth === env.ADMIN_TOKEN;
 }
 
 function cleanText(value) {
@@ -121,6 +129,14 @@ function listWhere(url) {
     const n = Number(minRating);
     if (!Number.isInteger(n)) return { error: 'minRating must be an integer' };
     where.push('rating >= ?');
+    params.push(n);
+  }
+
+  const maxRating = url.searchParams.get('maxRating');
+  if (maxRating !== null && maxRating !== '') {
+    const n = Number(maxRating);
+    if (!Number.isInteger(n)) return { error: 'maxRating must be an integer' };
+    where.push('rating <= ?');
     params.push(n);
   }
 
@@ -259,10 +275,52 @@ async function handleExport(request, env) {
 
 async function handleDelete(request, env, id) {
   if (!isAuthorized(request, env)) return json({ error: 'unauthorized' }, 401);
+  if (!request.headers.has('X-Reauth')) return json({ error: 'reauth_required' }, 401);
+  if (!reauthOk(request, env)) return json({ error: 'reauth_failed' }, 401);
 
   const result = await env.DB.prepare('DELETE FROM feedback WHERE id = ?').bind(id).run();
   if (!result.meta.changes) return json({ error: 'not found' }, 404);
   return json({ ok: true });
+}
+
+async function handleBulkDiscard(request, env) {
+  if (!isAuthorized(request, env)) return json({ error: 'unauthorized' }, 401);
+  if (!request.headers.has('X-Reauth')) return json({ error: 'reauth_required' }, 401);
+  if (!reauthOk(request, env)) return json({ error: 'reauth_failed' }, 401);
+
+  let body;
+  try {
+    body = await request.json();
+  } catch (_) {
+    return json({ error: 'invalid ids' }, 400);
+  }
+  const ids = body && body.ids;
+  if (!Array.isArray(ids) || ids.length === 0 || ids.length > 200 || !ids.every((id) => typeof id === 'string')) {
+    return json({ error: 'invalid ids' }, 400);
+  }
+
+  // Only delete ids that actually exist so the response honestly reports
+  // which rows were removed versus which never matched.
+  const existingResult = await env.DB.prepare(
+    'SELECT id FROM feedback WHERE id IN (' + ids.map(() => '?').join(', ') + ')'
+  )
+    .bind(...ids)
+    .all();
+  const existingIds = existingResult.results.map((r) => r.id);
+  const existingSet = new Set(existingIds);
+  const failed = ids.filter((id) => !existingSet.has(id)).map((id) => ({ id, error: 'not_found' }));
+  if (existingIds.length === 0) return json({ discarded: [], failed });
+
+  try {
+    await env.DB.batch(
+      existingIds.map((id) => env.DB.prepare('DELETE FROM feedback WHERE id = ?').bind(id))
+    );
+  } catch (_) {
+    const deleteFailed = ids.filter((id) => existingSet.has(id)).map((id) => ({ id, error: 'delete_failed' }));
+    return json({ discarded: [], failed: failed.concat(deleteFailed) });
+  }
+
+  return json({ discarded: existingIds, failed });
 }
 
 /* ---------- router ---------- */
@@ -289,6 +347,10 @@ export default {
 
       if (path === '/api/feedback/export.csv' && method === 'GET') {
         return await handleExport(request, env);
+      }
+
+      if (path === '/api/feedback/discard' && method === 'POST') {
+        return await handleBulkDiscard(request, env);
       }
 
       const deleteMatch = path.match(/^\/api\/feedback\/([^/]+)$/);

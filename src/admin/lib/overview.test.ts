@@ -1,4 +1,6 @@
 import { describe, expect, it } from 'vitest';
+import { IMPROVE_OPTIONS } from '../../screens/ImproveScreen';
+import { NEXT_OPTIONS } from '../../screens/NextScreen';
 import type { FeedbackItem } from '../types';
 import { computeOverview } from './overview';
 
@@ -190,10 +192,79 @@ describe('computeOverview with zero items', () => {
       topCategory: null,
       topActivity: null,
       topComplaint: null,
+      // add the new ranking fields so this exact-shape assertion stays honest
+      topRequests: [],
+      topComplaints: [],
       withComments: 0,
       followUps: 0,
       followUpPct: 0,
       dayComparison: null,
     });
+  });
+});
+
+describe('computeOverview topRequests and topComplaints', () => {
+  it('counts NextScreen chips once per response, ignoring free-text tails and case', () => {
+    const youth = NEXT_OPTIONS[0];
+    const worship = NEXT_OPTIONS[1];
+    const stats = computeOverview([
+      item({ suggestions: `${worship}, ${youth}` }),
+      item({ suggestions: `${youth} - make it monthly` }),
+      item({ suggestions: youth.toLowerCase() }),
+      // Repeated chip within one response still votes only once.
+      item({ suggestions: `${youth}, ${youth}, ${worship}` }),
+    ]);
+    expect(stats.topRequests).toEqual([
+      { label: youth, count: 4 },
+      { label: worship, count: 2 },
+    ]);
+  });
+
+  it('counts ImproveScreen chips from disliked, breaking count ties by label ascending', () => {
+    const sound = IMPROVE_OPTIONS[0];
+    const timing = IMPROVE_OPTIONS[1];
+    const stats = computeOverview([
+      item({ disliked: `${sound}, ${timing}` }),
+      item({ disliked: `${timing} - far too late` }),
+      item({ disliked: sound.toUpperCase() }),
+    ]);
+    expect(stats.topComplaints).toEqual([
+      { label: sound, count: 2 },
+      { label: timing, count: 2 },
+    ]);
+  });
+
+  it('caps topRequests at five entries, dropping the smallest count', () => {
+    const six = NEXT_OPTIONS.slice(0, 6);
+    const stats = computeOverview(
+      six.map((_, index) => item({ suggestions: six.slice(0, six.length - index).join(', ') })),
+    );
+    expect(stats.topRequests).toHaveLength(5);
+    expect(stats.topRequests.map((entry) => entry.count)).toEqual([6, 5, 4, 3, 2]);
+    expect(stats.topRequests.map((entry) => entry.label)).toEqual(six.slice(0, 5));
+  });
+
+  it('caps topComplaints at five entries as well', () => {
+    const six = IMPROVE_OPTIONS.slice(0, 6);
+    const stats = computeOverview(
+      six.map((_, index) => item({ disliked: six.slice(0, six.length - index).join(', ') })),
+    );
+    expect(stats.topComplaints).toHaveLength(5);
+    expect(stats.topComplaints.map((entry) => entry.count)).toEqual([6, 5, 4, 3, 2]);
+    expect(stats.topComplaints.map((entry) => entry.label)).toEqual(six.slice(0, 5));
+  });
+
+  it('excludes options with zero counts, keeping only counts > 0', () => {
+    const stats = computeOverview([
+      item({ suggestions: 'just free-form text', disliked: 'a generic gripe' }),
+      item({ suggestions: `${NEXT_OPTIONS[2]} - fully agree`, disliked: `${IMPROVE_OPTIONS[3]}` }),
+    ]);
+    expect(stats.topRequests).toEqual([{ label: NEXT_OPTIONS[2], count: 1 }]);
+    expect(stats.topComplaints).toEqual([{ label: IMPROVE_OPTIONS[3], count: 1 }]);
+  });
+
+  it('returns empty rankings when there are no responses', () => {
+    expect(computeOverview([]).topRequests).toEqual([]);
+    expect(computeOverview([]).topComplaints).toEqual([]);
   });
 });

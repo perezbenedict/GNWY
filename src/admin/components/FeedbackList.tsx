@@ -1,8 +1,10 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
+import { X } from 'lucide-react';
 import { Emblem } from '../../components/Emblem';
 import { ResponseCard } from './ResponseCard';
 import { ResponseDetail } from './ResponseDetail';
+import DiscardDialog from './DiscardDialog';
 import type { FeedbackItem, SortMode } from '../types';
 
 const PAGE_SIZE = 25;
@@ -89,6 +91,23 @@ function dayLabel(date: Date | null): string {
   return date.toLocaleDateString(undefined, { weekday: 'short', day: 'numeric', month: 'short' });
 }
 
+// Identifying line for the single-discard dialog: name/nickname · date · rating.
+function dialogLabel(item: FeedbackItem): string {
+  const name = String(item.name ?? '').trim() || 'Anonymous';
+  const date = new Date(item.created_at);
+  const when = Number.isNaN(date.getTime())
+    ? item.created_at || 'Undated'
+    : date.toLocaleString(undefined, {
+        day: 'numeric',
+        month: 'short',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+      });
+  const rating = item.rating === null ? 'Unrated' : `${item.rating}★`;
+  return `${name} · ${when} · ${rating}`;
+}
+
 export function FeedbackList({
   loading,
   error,
@@ -96,27 +115,87 @@ export function FeedbackList({
   sort,
   onRetry,
   onDiscard,
+  onBulkDiscard,
 }: {
   loading: boolean;
   error: string;
   items: FeedbackItem[];
   sort: SortMode;
   onRetry: () => void;
-  onDiscard: (id: string) => void;
+  onDiscard: (id: string, reauth: string) => Promise<void>;
+  onBulkDiscard: (
+    ids: string[],
+    reauth: string,
+  ) => Promise<{ discarded: string[]; failed: { id: string; error: string }[] }>;
 }) {
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(() => new Set());
+  const [discardTarget, setDiscardTarget] = useState<FeedbackItem | null>(null);
+  const [bulkOpen, setBulkOpen] = useState(false);
+  const [notice, setNotice] = useState<string | null>(null);
+  const selectAllRef = useRef<HTMLInputElement>(null);
 
   // Re-cap the list when filtering shrinks it below what is currently shown.
   useEffect(() => {
     setVisibleCount((count) => (items.length < count ? PAGE_SIZE : count));
   }, [items.length]);
 
+  // Drop selections whose responses are no longer present (refetch, discard).
+  useEffect(() => {
+    setSelectedIds((prev) => {
+      const present = new Set(items.map((item) => item.id));
+      const next = new Set<string>();
+      let changed = false;
+      prev.forEach((id) => {
+        if (present.has(id)) next.add(id);
+        else changed = true;
+      });
+      return changed ? next : prev;
+    });
+  }, [items]);
+
+  // Result banner auto-dismisses after ~6s.
+  useEffect(() => {
+    if (!notice) return;
+    const timer = window.setTimeout(() => setNotice(null), 6000);
+    return () => window.clearTimeout(timer);
+  }, [notice]);
+
   const selected = (selectedId && items.find((item) => item.id === selectedId)) || null;
   const sorted = sortItems(items, sort);
   const grouped = sort === 'new' || sort === 'old';
   const visible = sorted.slice(0, visibleCount);
   const remaining = sorted.length - visibleCount;
+  const selectedCount = selectedIds.size;
+  const allVisibleSelected = visible.length > 0 && visible.every((item) => selectedIds.has(item.id));
+  const someVisibleSelected = visible.some((item) => selectedIds.has(item.id));
+
+  useEffect(() => {
+    if (selectAllRef.current) {
+      selectAllRef.current.indeterminate = someVisibleSelected && !allVisibleSelected;
+    }
+  }, [someVisibleSelected, allVisibleSelected]);
+
+  const toggleSelect = (id: string, isSelected: boolean) => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (isSelected) next.add(id);
+      else next.delete(id);
+      return next;
+    });
+  };
+
+  const toggleAllVisible = (isSelected: boolean) => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      visible.forEach((item) => {
+        if (isSelected) next.add(item.id);
+        else next.delete(item.id);
+      });
+      return next;
+    });
+  };
 
   return (
     <section aria-live="polite" aria-busy={loading}>
@@ -133,6 +212,63 @@ export function FeedbackList({
           >
             Retry
           </button>
+        </div>
+      ) : null}
+
+      {notice ? (
+        <div
+          role="status"
+          className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-lavender/25 bg-lavender/10 px-4 py-3 text-sm text-ink"
+        >
+          <span>{notice}</span>
+          <button
+            type="button"
+            aria-label="Dismiss notification"
+            onClick={() => setNotice(null)}
+            className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-lg text-muted transition hover:text-ink focus:outline-none focus:ring-2 focus:ring-lavender/40"
+          >
+            <X className="h-4 w-4" aria-hidden="true" />
+          </button>
+        </div>
+      ) : null}
+
+      {!loading && !error && visible.length > 0 ? (
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-x-4 gap-y-2 rounded-xl border border-lavender/10 bg-surface px-4 py-2">
+          <label className="inline-flex h-11 cursor-pointer items-center gap-3 text-sm text-muted">
+            <input
+              ref={selectAllRef}
+              type="checkbox"
+              checked={allVisibleSelected}
+              onChange={(event) => toggleAllVisible(event.target.checked)}
+              className="h-4 w-4 accent-lavender"
+            />
+            Select all {visible.length} shown
+          </label>
+          <p className="text-xs text-muted/70">Applies to the responses currently shown.</p>
+        </div>
+      ) : null}
+
+      {!loading && selectedCount > 0 ? (
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-lavender/25 bg-lavender/10 px-4 py-2">
+          <span aria-live="polite" className="text-sm font-medium text-ink">
+            {selectedCount} selected
+          </span>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => setSelectedIds(new Set())}
+              className="inline-flex h-11 items-center rounded-lg border border-white/15 px-4 text-xs font-semibold uppercase tracking-[0.16em] text-muted transition hover:border-lavender/40 hover:text-ink focus:outline-none focus:ring-2 focus:ring-lavender/40"
+            >
+              Clear
+            </button>
+            <button
+              type="button"
+              onClick={() => setBulkOpen(true)}
+              className="inline-flex h-11 items-center rounded-xl border border-crimson/60 bg-crimson/10 px-4 text-xs font-semibold uppercase tracking-[0.14em] text-crimson transition hover:bg-crimson/20 focus:outline-none focus:ring-2 focus:ring-crimson/40"
+            >
+              Discard {selectedCount}
+            </button>
+          </div>
         </div>
       ) : null}
 
@@ -178,7 +314,9 @@ export function FeedbackList({
                     key={item.id}
                     item={item}
                     index={group.startIndex + offset}
-                    onDiscard={onDiscard}
+                    selected={selectedIds.has(item.id)}
+                    onToggleSelect={toggleSelect}
+                    onDiscardRequest={setDiscardTarget}
                     onOpen={() => setSelectedId(item.id)}
                   />
                 ))}
@@ -194,7 +332,9 @@ export function FeedbackList({
                 key={item.id}
                 item={item}
                 index={index}
-                onDiscard={onDiscard}
+                selected={selectedIds.has(item.id)}
+                onToggleSelect={toggleSelect}
+                onDiscardRequest={setDiscardTarget}
                 onOpen={() => setSelectedId(item.id)}
               />
             ))}
@@ -216,6 +356,55 @@ export function FeedbackList({
 
       <AnimatePresence>
         {selected ? <ResponseDetail item={selected} onClose={() => setSelectedId(null)} /> : null}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {discardTarget ? (
+          <DiscardDialog
+            mode="single"
+            count={1}
+            label={dialogLabel(discardTarget)}
+            onCancel={() => setDiscardTarget(null)}
+            onConfirm={async (reauth) => {
+              try {
+                await onDiscard(discardTarget.id, reauth);
+                setDiscardTarget(null);
+                return null;
+              } catch (err) {
+                return err instanceof Error ? err.message : 'Discard failed. Nothing was removed.';
+              }
+            }}
+          />
+        ) : null}
+        {bulkOpen && selectedCount > 0 ? (
+          <DiscardDialog
+            mode="bulk"
+            count={selectedCount}
+            onCancel={() => setBulkOpen(false)}
+            onConfirm={async (reauth) => {
+              const ids = Array.from(selectedIds);
+              try {
+                const result = await onBulkDiscard(ids, reauth);
+                setBulkOpen(false);
+                setSelectedIds((prev) => {
+                  const next = new Set(prev);
+                  result.discarded.forEach((id) => next.delete(id));
+                  return next;
+                });
+                const discarded = result.discarded.length;
+                const failed = result.failed.length;
+                setNotice(
+                  failed === 0
+                    ? `Discarded ${discarded} response${discarded === 1 ? '' : 's'}.`
+                    : `Discarded ${discarded} of ${ids.length}. ${failed} could not be discarded - they may have already been removed.`,
+                );
+                return null;
+              } catch (err) {
+                return err instanceof Error ? err.message : 'Discard failed. Nothing was removed.';
+              }
+            }}
+          />
+        ) : null}
       </AnimatePresence>
     </section>
   );

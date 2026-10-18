@@ -4,6 +4,8 @@ import { Emblem } from '../../components/Emblem';
 
 export function Topbar({ onLock }: { onLock: () => void }) {
   const reducedMotion = useReducedMotion();
+  // The rotating emblem must NOT use initial={false}: with it, motion snaps to the
+  // rotate:360 target without ever running the transition, so the logo never spins.
   return (
     <motion.header
       initial={{ opacity: 0 }}
@@ -18,7 +20,6 @@ export function Topbar({ onLock }: { onLock: () => void }) {
           ) : (
             <motion.div
               className="h-8 w-8 shrink-0"
-              initial={false}
               animate={{ rotate: 360 }}
               transition={{ duration: 24, repeat: Infinity, ease: 'linear' }}
             >

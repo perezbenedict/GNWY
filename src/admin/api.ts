@@ -42,6 +42,7 @@ async function apiFetch(path: string, options: RequestInit = {}): Promise<Respon
 export interface VaultFilters {
   q: string;
   minRating: string;
+  maxRating?: string;
   category: string;
   dateFrom?: string;
   dateTo?: string;
@@ -52,6 +53,7 @@ function filterParams(filters: VaultFilters): URLSearchParams {
   const params = new URLSearchParams();
   if (filters.q) params.set('q', filters.q);
   if (filters.minRating) params.set('minRating', filters.minRating);
+  if (filters.maxRating) params.set('maxRating', filters.maxRating);
   if (filters.category) params.set('category', filters.category);
   if (filters.dateFrom) params.set('dateFrom', filters.dateFrom);
   if (filters.dateTo) params.set('dateTo', filters.dateTo);
@@ -70,6 +72,87 @@ export async function exportCsv(filters: VaultFilters): Promise<Response> {
   return apiFetch('/api/feedback/export.csv' + (query ? '?' + query : ''));
 }
 
-export async function discardFeedback(id: string): Promise<Response> {
-  return apiFetch('/api/feedback/' + encodeURIComponent(id), { method: 'DELETE' });
+export async function discardFeedback(id: string, reauth: string): Promise<void> {
+  // Not apiFetch: the 401 body distinguishes a rejected reauth key (nothing
+  // deleted, stay in the dialog) from an expired session token (drop to gate).
+  let res: Response;
+  try {
+    res = await fetch(apiUrl('/api/feedback/' + encodeURIComponent(id)), {
+      method: 'DELETE',
+      headers: {
+        Authorization: 'Bearer ' + getToken(),
+        'X-Reauth': reauth,
+      },
+    });
+  } catch {
+    throw new VaultError('Could not reach the server. Check your connection and try again.');
+  }
+
+  if (res.status === 401) {
+    let code = '';
+    try {
+      code = ((await res.json()) as { error?: string }).error || '';
+    } catch {
+      // non-JSON body; fall through to the generic auth error
+    }
+    if (code === 'reauth_required' || code === 'reauth_failed') {
+      throw new VaultError('Access key not recognized. Nothing was discarded.');
+    }
+    throw new VaultError('Access key not recognized.');
+  }
+  if (!res.ok) {
+    let message = '';
+    try {
+      message = ((await res.json()) as { error?: string }).error || '';
+    } catch {
+      // non-JSON body; fall through to the status message
+    }
+    throw new VaultError(message || `Request failed (status ${res.status}).`);
+  }
+}
+
+export async function bulkDiscard(
+  ids: string[],
+  reauth: string
+): Promise<{ discarded: string[]; failed: { id: string; error: string }[] }> {
+  // Not apiFetch: it throws a generic error on any 401 before the response
+  // body is readable, and here the body tells us whether the reauth key was
+  // rejected (nothing deleted) versus the stored token expiring.
+  let res: Response;
+  try {
+    res = await fetch(apiUrl('/api/feedback/discard'), {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: 'Bearer ' + getToken(),
+        'X-Reauth': reauth,
+      },
+      body: JSON.stringify({ ids }),
+    });
+  } catch {
+    throw new VaultError('Could not reach the server. Check your connection and try again.');
+  }
+
+  if (res.status === 401) {
+    let code = '';
+    try {
+      code = ((await res.json()) as { error?: string }).error || '';
+    } catch {
+      // non-JSON body; fall through to the generic auth error
+    }
+    if (code === 'reauth_required' || code === 'reauth_failed') {
+      throw new VaultError('Access key not recognized. Nothing was discarded.');
+    }
+    throw new VaultError('Access key not recognized.');
+  }
+  if (!res.ok) {
+    let message = '';
+    try {
+      message = ((await res.json()) as { error?: string }).error || '';
+    } catch {
+      // non-JSON body; fall through to the status message
+    }
+    throw new VaultError(message || `Request failed (status ${res.status}).`);
+  }
+  return res.json();
 }
