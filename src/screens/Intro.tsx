@@ -1,4 +1,4 @@
-import { motion, useReducedMotion } from 'motion/react';
+import { motion } from 'motion/react';
 import { primaryButtonClass } from '../components/NavButtons';
 import { Emblem } from '../components/Emblem';
 
@@ -9,25 +9,8 @@ interface IntroProps {
 }
 
 export function Intro({ onStart }: IntroProps) {
-  const reduceMotion = useReducedMotion();
-
   return (
     <section className="relative pb-8">
-      {!reduceMotion && (
-        <div aria-hidden="true" className="pointer-events-none fixed inset-0 -z-10">
-          <motion.div
-            className="absolute -left-24 -top-24 h-72 w-72 rounded-full bg-crimson/10 blur-3xl"
-            animate={{ x: [0, 40, 0], y: [0, 30, 0] }}
-            transition={{ duration: 26, repeat: Infinity, ease: 'easeInOut' }}
-          />
-          <motion.div
-            className="absolute -right-20 top-40 h-64 w-64 rounded-full bg-lavender/15 blur-3xl"
-            animate={{ x: [0, -30, 0], y: [0, 40, 0] }}
-            transition={{ duration: 30, repeat: Infinity, ease: 'easeInOut' }}
-          />
-        </div>
-      )}
-
       <div className="flex flex-col justify-center">
         <Emblem className="mx-auto mb-5 h-24 w-24 drop-shadow-[0_0_18px_rgba(232,199,122,0.25)] sm:h-28 sm:w-28" />
         <motion.span

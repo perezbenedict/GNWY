@@ -26,13 +26,47 @@ const backwardVariants: Variants = {
   exit: { opacity: 0, x: 56, scale: 0.965, rotate: 1.1, filter: 'blur(8px)' },
 };
 
+// Soft glow blobs rearrange per step; x/y deltas keep motion transform-only (safe under reduced motion).
+const BLOB_DELTAS = {
+  A: { a: { x: 0, y: 0 }, b: { x: 0, y: 0 } },
+  B: { a: { x: 150, y: 120 }, b: { x: -240, y: -140 } },
+  C: { a: { x: -40, y: 260 }, b: { x: 60, y: -60 } },
+} as const;
+
+const blobTransition = { type: 'spring', stiffness: 120, damping: 22 } as const;
+
+type AtmosphereState = keyof typeof BLOB_DELTAS;
+
+const STEP_ATMOSPHERE: Record<number, AtmosphereState> = {
+  0: 'A',
+  1: 'A',
+  2: 'B',
+  3: 'B',
+  4: 'C',
+  5: 'C',
+  6: 'B',
+};
+
 // Living gold emblem behind every screen; transforms are skipped under reduced motion.
-function BackgroundEmblem() {
+function BackgroundEmblem({ atmosphere }: { atmosphere: AtmosphereState }) {
+  const deltas = BLOB_DELTAS[atmosphere];
   return (
     <div aria-hidden className="pointer-events-none fixed inset-0 -z-10 flex items-center justify-center">
       <div
         className="absolute h-[80vmin] w-[80vmin] rounded-full"
         style={{ background: 'radial-gradient(circle, rgba(232,199,122,0.10), transparent 65%)' }}
+      />
+      <motion.div
+        className="absolute h-72 w-72 rounded-full bg-crimson/10 blur-3xl"
+        style={{ top: -96, left: -96 }}
+        animate={deltas.a}
+        transition={blobTransition}
+      />
+      <motion.div
+        className="absolute h-64 w-64 rounded-full bg-lavender/15 blur-3xl"
+        style={{ top: 160, right: -80 }}
+        animate={deltas.b}
+        transition={blobTransition}
       />
       <motion.div animate={{ rotate: 360 }} transition={{ duration: 140, repeat: Infinity, ease: 'linear' }}>
         <motion.div animate={{ y: [0, -14, 0] }} transition={{ duration: 11, repeat: Infinity, ease: 'easeInOut' }}>
@@ -96,7 +130,7 @@ export default function App() {
         className="mx-auto flex min-h-[100dvh] w-full max-w-2xl flex-col justify-center overflow-x-clip px-4 pb-12 pt-10 sm:px-8"
         style={{ paddingBottom: 'max(3rem, env(safe-area-inset-bottom))' }}
       >
-        <BackgroundEmblem />
+        <BackgroundEmblem atmosphere="A" />
         <SuccessScreen
           onDone={() => {
             setSubmitStatus('idle');
@@ -197,7 +231,7 @@ export default function App() {
       className="mx-auto flex min-h-[100dvh] w-full max-w-2xl flex-col justify-center overflow-x-clip px-4 pb-12 pt-10 sm:px-8"
       style={{ paddingBottom: 'max(3rem, env(safe-area-inset-bottom))' }}
     >
-      <BackgroundEmblem />
+      <BackgroundEmblem atmosphere={STEP_ATMOSPHERE[step] ?? 'A'} />
       <AnimatePresence mode="wait" initial={false}>
         <motion.div
           key={screenKey}
