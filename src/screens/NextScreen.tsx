@@ -1,9 +1,20 @@
 import { useEffect, useRef } from 'react';
 import { motion } from 'motion/react';
+import type { Variants } from 'motion/react';
 import { OptionCard } from '../components/OptionCard';
 import { NavButtons } from '../components/NavButtons';
 import { ScreenShell } from '../components/ScreenShell';
 import { TextField } from '../components/TextField';
+
+const containerVariants: Variants = {
+  hidden: {},
+  show: { transition: { staggerChildren: 0.05, delayChildren: 0.12 } },
+};
+
+const itemVariants: Variants = {
+  hidden: { opacity: 0, y: 12 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.45, ease: [0.16, 1, 0.3, 1] } },
+};
 
 export const NEXT_OPTIONS = [
   'More youth hangouts \u{1F389}',
@@ -52,15 +63,16 @@ export function NextScreen({
         support="Help us make the next one even better."
         progress={{ step: 4, total: 5 }}
       >
-        <div className="flex flex-col gap-3" role="group" aria-label="What should we do more of">
-          {NEXT_OPTIONS.map((label, index) => (
-            <motion.div
-              key={label}
-              className="w-full"
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.4, ease: 'easeOut', delay: Math.min(index * 0.04, 0.4) }}
-            >
+        <motion.div
+          className="flex flex-col gap-3"
+          role="group"
+          aria-label="What should we do more of"
+          variants={containerVariants}
+          initial="hidden"
+          animate="show"
+        >
+          {NEXT_OPTIONS.map((label) => (
+            <motion.div key={label} className="w-full" variants={itemVariants}>
               <OptionCard
                 label={label}
                 selected={selected.includes(label)}
@@ -68,8 +80,13 @@ export function NextScreen({
               />
             </motion.div>
           ))}
-        </div>
-        <div className="mt-6">
+        </motion.div>
+        <motion.div
+          className="mt-6"
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1], delay: 0.12 + NEXT_OPTIONS.length * 0.05 }}
+        >
           <TextField
             label="Your idea"
             placeholder={'Drop your idea. We are listening \u{1F440}'}
@@ -80,7 +97,7 @@ export function NextScreen({
             highlighted={ideaSelected}
             inputRef={ideaInputRef}
           />
-        </div>
+        </motion.div>
       </ScreenShell>
       <NavButtons onBack={onBack} onNext={onNext} onSkip={onSkip} />
     </>

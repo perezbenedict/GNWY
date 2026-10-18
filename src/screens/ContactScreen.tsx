@@ -1,11 +1,22 @@
 import { useEffect, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
+import type { Variants } from 'motion/react';
 import { NavButtons } from '../components/NavButtons';
 import { ScreenShell } from '../components/ScreenShell';
 import { TextField } from '../components/TextField';
 import { fetchUsedNicknames } from '../api/nicknames';
 import { NICKNAMES } from '../data/nicknames';
 import { pickSuggestion } from '../lib/nicknames';
+
+const containerVariants: Variants = {
+  hidden: {},
+  show: { transition: { staggerChildren: 0.05, delayChildren: 0.12 } },
+};
+
+const itemVariants: Variants = {
+  hidden: { opacity: 0, y: 12 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.45, ease: [0.16, 1, 0.3, 1] } },
+};
 
 interface ContactScreenProps {
   name: string;
@@ -85,8 +96,13 @@ export function ContactScreen({
         support="Totally optional. Leave your details only if you want us to reach out."
         progress={{ step: 5, total: 5 }}
       >
-        <div className="flex flex-col gap-5">
-          <div>
+        <motion.div
+          className="flex flex-col gap-5"
+          variants={containerVariants}
+          initial="hidden"
+          animate="show"
+        >
+          <motion.div variants={itemVariants}>
             <TextField
               label="Name"
               placeholder={suggestion ?? ''}
@@ -112,42 +128,37 @@ export function ContactScreen({
               <p className="mt-3 text-sm text-muted">Every nickname's been claimed - write your own ✨</p>
             ) : (
               <div className="mt-3 flex flex-wrap gap-2">
-                <motion.button
+                <button
                   type="button"
                   onClick={handleAnother}
-                  initial={{ opacity: 0, y: 8 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.4, ease: 'easeOut' }}
                   className="min-h-[44px] rounded-xl border border-lavender/40 px-4 text-sm font-medium text-lavender transition-colors hover:bg-lavender/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-lavender/60"
                 >
                   🎲 Give me another
-                </motion.button>
-                <motion.button
+                </button>
+                <button
                   type="button"
                   onClick={handleUse}
                   aria-disabled={useDisabled}
-                  initial={{ opacity: 0, y: 8 }}
-                  // Mirror the class-based disabled opacity; motion's inline opacity would otherwise override it.
-                  animate={{ opacity: useDisabled ? 0.5 : 1, y: 0 }}
-                  transition={{ duration: 0.4, ease: 'easeOut', delay: 0.06 }}
                   className={`min-h-[44px] rounded-xl bg-gradient-to-b from-lavender to-[#d4b065] px-4 text-sm font-semibold text-midnight transition-opacity focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-lavender/60 ${
                     useDisabled ? 'cursor-not-allowed opacity-50' : ''
                   }`}
                 >
                   Use this nickname
-                </motion.button>
+                </button>
               </div>
             )}
-          </div>
-          <TextField
-            label="Email or WhatsApp"
-            placeholder="Your email or WhatsApp number"
-            value={contact}
-            onChange={onContactChange}
-            optional
-            autoComplete="tel"
-          />
-        </div>
+          </motion.div>
+          <motion.div variants={itemVariants}>
+            <TextField
+              label="Email or WhatsApp"
+              placeholder="Your email or WhatsApp number"
+              value={contact}
+              onChange={onContactChange}
+              optional
+              autoComplete="tel"
+            />
+          </motion.div>
+        </motion.div>
       </ScreenShell>
       <NavButtons onBack={onBack} onNext={onNext} />
     </>

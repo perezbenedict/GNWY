@@ -56,12 +56,15 @@ export function ReviewScreen({ answers, submitting, submitFailed, error, onSubmi
             className="flex flex-col gap-2.5"
             initial="hidden"
             animate="show"
-            variants={{ hidden: {}, show: { transition: { staggerChildren: 0.05 } } }}
+            variants={{ hidden: {}, show: { transition: { staggerChildren: 0.06, delayChildren: 0.1 } } }}
           >
             {rows.map((row) => (
               <motion.li
                 key={row.label}
-                variants={{ hidden: { opacity: 0, y: 10 }, show: { opacity: 1, y: 0 } }}
+                variants={{
+                  hidden: { opacity: 0, y: 12 },
+                  show: { opacity: 1, y: 0, transition: { duration: 0.45, ease: [0.16, 1, 0.3, 1] } },
+                }}
                 whileHover={{ x: 2, transition: { duration: 0.18 } }}
                 className="relative"
               >
@@ -104,7 +107,12 @@ export function ReviewScreen({ answers, submitting, submitFailed, error, onSubmi
               )}
             </div>
           )}
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+          <motion.div
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1], delay: 0.4 }}
+            className="flex flex-col gap-3 sm:flex-row sm:items-center"
+          >
             <button type="button" onClick={onBack} className={`${ghostButtonClass} order-2 w-full sm:order-1 sm:w-auto`}>
               Go back and edit
             </button>
@@ -129,7 +137,7 @@ export function ReviewScreen({ answers, submitting, submitFailed, error, onSubmi
                 </>
               )}
             </motion.button>
-          </div>
+          </motion.div>
         </div>
       </ScreenShell>
     </>

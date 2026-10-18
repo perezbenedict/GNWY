@@ -18,15 +18,15 @@ import { SuccessScreen } from './screens/SuccessScreen';
 import { Emblem } from './components/Emblem';
 
 const forwardVariants: Variants = {
-  enter: { opacity: 0, x: 72, scale: 0.955, rotate: 1.4, filter: 'blur(10px)' },
-  center: { opacity: 1, x: 0, scale: 1, rotate: 0, filter: 'blur(0px)' },
-  exit: { opacity: 0, x: -56, scale: 0.965, rotate: -1.1, filter: 'blur(8px)' },
+  enter: { opacity: 0, x: 36, scale: 0.985 },
+  center: { opacity: 1, x: 0, scale: 1 },
+  exit: { opacity: 0, x: -36, scale: 0.985 },
 };
 
 const backwardVariants: Variants = {
-  enter: { opacity: 0, x: -72, scale: 0.955, rotate: -1.4, filter: 'blur(10px)' },
-  center: { opacity: 1, x: 0, scale: 1, rotate: 0, filter: 'blur(0px)' },
-  exit: { opacity: 0, x: 56, scale: 0.965, rotate: 1.1, filter: 'blur(8px)' },
+  enter: { opacity: 0, x: -36, scale: 0.985 },
+  center: { opacity: 1, x: 0, scale: 1 },
+  exit: { opacity: 0, x: 36, scale: 0.985 },
 };
 
 // Soft glow blobs rearrange per step; x/y deltas keep motion transform-only (safe under reduced motion).
@@ -269,7 +269,7 @@ export default function App() {
           initial="enter"
           animate="center"
           exit="exit"
-          transition={{ type: 'spring', stiffness: 300, damping: 30, mass: 0.9 }}
+          transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
         >
           {screen}
         </motion.div>

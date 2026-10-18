@@ -5,8 +5,12 @@ import type { Variants } from 'motion/react';
 import { Progress } from './Progress';
 
 const shellVariants: Variants = {
-  hidden: {},
-  show: { transition: { staggerChildren: 0.07, delayChildren: 0.04 } },
+  hidden: { opacity: 0, y: 12 },
+  show: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.5, ease: [0.16, 1, 0.3, 1], staggerChildren: 0.07, delayChildren: 0.04 },
+  },
 };
 
 const slotVariants: Variants = {

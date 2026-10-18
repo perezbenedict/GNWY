@@ -1,10 +1,21 @@
 import { useRef } from 'react';
 import type { KeyboardEvent } from 'react';
 import { motion } from 'motion/react';
+import type { Variants } from 'motion/react';
 import { OptionCard } from '../components/OptionCard';
 import { NavButtons } from '../components/NavButtons';
 import { ScreenShell } from '../components/ScreenShell';
 import type { Answers } from '../types';
+
+const containerVariants: Variants = {
+  hidden: {},
+  show: { transition: { staggerChildren: 0.05, delayChildren: 0.12 } },
+};
+
+const itemVariants: Variants = {
+  hidden: { opacity: 0, y: 12 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.45, ease: [0.16, 1, 0.3, 1] } },
+};
 
 export const RATING_OPTIONS: ReadonlyArray<{ label: string; value: Answers['rating'] }> = [
   { label: '10/10. I felt that. \u{1F525}', value: 5 },
@@ -43,29 +54,36 @@ export function RatingScreen({ rating, onSelect, onBack, onNext }: RatingScreenP
         support="No pressure. Give us your honest take."
         progress={{ step: 1, total: 5 }}
       >
-        <div role="radiogroup" aria-label="How was service today?" className="flex flex-col gap-3">
+        <motion.div
+          role="radiogroup"
+          aria-label="How was service today?"
+          className="flex flex-col gap-3"
+          variants={containerVariants}
+          initial="hidden"
+          animate="show"
+        >
           {RATING_OPTIONS.map((option, index) => (
-            <motion.div
-              key={option.label}
-              className="w-full"
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.4, ease: 'easeOut', delay: Math.min(index * 0.04, 0.4) }}
-            >
-              <OptionCard
-                variant="radio"
-                label={option.label}
-                selected={rating === option.value}
-                onSelect={() => onSelect(option.value)}
-                buttonRef={(element) => {
-                  optionRefs.current[index] = element;
-                }}
-                tabIndex={rating === option.value || (rating === null && index === 0) ? 0 : -1}
-                onKeyDown={(event) => handleKeyDown(event, index)}
-              />
+            <motion.div key={option.label} className="w-full" variants={itemVariants}>
+              {/* Pop like a star fill: the chosen option and everything below it. */}
+              <motion.div
+                animate={{ scale: rating !== null && option.value !== null && rating >= option.value ? [1, 1.12, 1] : 1 }}
+                transition={{ duration: 0.35 }}
+              >
+                <OptionCard
+                  variant="radio"
+                  label={option.label}
+                  selected={rating === option.value}
+                  onSelect={() => onSelect(option.value)}
+                  buttonRef={(element) => {
+                    optionRefs.current[index] = element;
+                  }}
+                  tabIndex={rating === option.value || (rating === null && index === 0) ? 0 : -1}
+                  onKeyDown={(event) => handleKeyDown(event, index)}
+                />
+              </motion.div>
             </motion.div>
           ))}
-        </div>
+        </motion.div>
       </ScreenShell>
       <NavButtons onBack={onBack} onNext={onNext} />
     </>

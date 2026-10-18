@@ -1,5 +1,6 @@
 import { useId } from 'react';
 import type { FocusEvent, Ref } from 'react';
+import { motion } from 'motion/react';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any -- shared by <input> and <textarea>
 type FieldRef = Ref<any>;
@@ -49,8 +50,9 @@ export function TextField({
         <span>{label}</span>
         {optional && <span className="text-xs font-normal text-muted">optional</span>}
       </label>
+      {/* focus emphasis is transform-only so the Tailwind ring keeps driving the glow and nothing reflows */}
       {multiline ? (
-        <textarea
+        <motion.textarea
           id={id}
           ref={inputRef}
           className={`${base} ${state} min-h-[110px] resize-y`}
@@ -59,9 +61,11 @@ export function TextField({
           maxLength={maxLength}
           onFocus={handleFocus}
           onChange={(event) => onChange(event.target.value)}
+          whileFocus={{ scale: 1.012 }}
+          transition={{ type: 'spring', stiffness: 320, damping: 24 }}
         />
       ) : (
-        <input
+        <motion.input
           id={id}
           ref={inputRef}
           type={inputType}
@@ -72,6 +76,8 @@ export function TextField({
           maxLength={maxLength}
           onFocus={handleFocus}
           onChange={(event) => onChange(event.target.value)}
+          whileFocus={{ scale: 1.012 }}
+          transition={{ type: 'spring', stiffness: 320, damping: 24 }}
         />
       )}
       {showCounter && maxLength !== undefined && (

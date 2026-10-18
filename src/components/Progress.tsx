@@ -1,4 +1,4 @@
-import { AnimatePresence, motion } from 'motion/react';
+import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
 
 interface ProgressProps {
   step: number;
@@ -6,6 +6,9 @@ interface ProgressProps {
 }
 
 export function Progress({ step, total }: ProgressProps) {
+  // MotionConfig's reducedMotion only covers transforms/layout, so the width spring needs its own guard
+  const reduced = useReducedMotion() === true;
+
   return (
     <div className="mb-8">
       <div className="relative mb-2 h-5 w-24 overflow-hidden" aria-live="polite">
@@ -26,9 +29,10 @@ export function Progress({ step, total }: ProgressProps) {
       <div className="h-1.5 w-full overflow-hidden rounded-full bg-white/10">
         <motion.div
           className="relative h-full w-full origin-left rounded-full bg-lavender"
-          initial={false}
-          animate={{ scaleX: step / total }}
-          transition={{ type: 'spring', stiffness: 260, damping: 30 }}
+          // Progress remounts per screen, so the fill grows in from zero instead of appearing at width
+          initial={reduced ? false : { width: '0%' }}
+          animate={{ width: `${(step / total) * 100}%` }}
+          transition={reduced ? { duration: 0 } : { type: 'spring', stiffness: 140, damping: 22 }}
         >
           <span
             aria-hidden="true"
@@ -37,6 +41,11 @@ export function Progress({ step, total }: ProgressProps) {
               background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.25), transparent)',
               backgroundSize: '200% 100%',
             }}
+          />
+          {/* luminous leading edge; absolutely positioned so the bar's height/footprint is unchanged */}
+          <span
+            aria-hidden="true"
+            className="absolute right-0 top-1/2 h-0.5 w-0.5 -translate-y-1/2 rounded-full bg-white shadow-[0_0_6px_2px_rgba(255,255,255,0.8)]"
           />
         </motion.div>
       </div>

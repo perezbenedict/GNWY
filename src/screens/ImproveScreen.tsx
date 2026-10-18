@@ -1,8 +1,19 @@
 import { motion } from 'motion/react';
+import type { Variants } from 'motion/react';
 import { OptionCard } from '../components/OptionCard';
 import { NavButtons } from '../components/NavButtons';
 import { ScreenShell } from '../components/ScreenShell';
 import { TextField } from '../components/TextField';
+
+const containerVariants: Variants = {
+  hidden: {},
+  show: { transition: { staggerChildren: 0.05, delayChildren: 0.12 } },
+};
+
+const itemVariants: Variants = {
+  hidden: { opacity: 0, y: 12 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.45, ease: [0.16, 1, 0.3, 1] } },
+};
 
 export const IMPROVE_OPTIONS = [
   'The sound and production \u{1F3A4}',
@@ -37,15 +48,16 @@ export function ImproveScreen({ selected, text, onToggle, onTextChange, onBack, 
         support="Your feedback helps us make the next service better."
         progress={{ step: 3, total: 5 }}
       >
-        <div className="flex flex-col gap-3" role="group" aria-label="What could have been better">
-          {IMPROVE_OPTIONS.map((label, index) => (
-            <motion.div
-              key={label}
-              className="w-full"
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.4, ease: 'easeOut', delay: Math.min(index * 0.04, 0.4) }}
-            >
+        <motion.div
+          className="flex flex-col gap-3"
+          role="group"
+          aria-label="What could have been better"
+          variants={containerVariants}
+          initial="hidden"
+          animate="show"
+        >
+          {IMPROVE_OPTIONS.map((label) => (
+            <motion.div key={label} className="w-full" variants={itemVariants}>
               <OptionCard
                 label={label}
                 selected={selected.includes(label)}
@@ -53,8 +65,13 @@ export function ImproveScreen({ selected, text, onToggle, onTextChange, onBack, 
               />
             </motion.div>
           ))}
-        </div>
-        <div className="mt-6">
+        </motion.div>
+        <motion.div
+          className="mt-6"
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1], delay: 0.12 + IMPROVE_OPTIONS.length * 0.05 }}
+        >
           <TextField
             label="Anything else?"
             placeholder={'Anything that could\u2019ve made the experience better?'}
@@ -63,7 +80,7 @@ export function ImproveScreen({ selected, text, onToggle, onTextChange, onBack, 
             multiline
             optional
           />
-        </div>
+        </motion.div>
       </ScreenShell>
       <NavButtons onBack={onBack} onNext={onNext} onSkip={onSkip} />
     </>

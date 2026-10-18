@@ -50,10 +50,12 @@ export function OptionCard({
       tabIndex={tabIndex}
       onKeyDown={onKeyDown}
       onClick={onSelect}
-      whileHover={{ y: -1 }}
-      whileTap={{ scale: 0.975 }}
-      animate={{ scale: selected ? 1.015 : 1 }}
-      transition={{ type: 'spring', stiffness: 480, damping: 20 }}
+      whileHover={{ y: -2 }}
+      whileTap={{ scale: 0.97 }}
+      // Unselected rests at 0.985 so selection springs 0.985 → 1 even for
+      // keyboard-triggered clicks (no whileTap involved). Transform-only: no layout shift.
+      animate={{ scale: selected ? 1 : 0.985 }}
+      transition={{ type: 'spring', stiffness: 300, damping: 22 }}
       className={`${base} ${state}`}
     >
       {/* Gold flash; needs the button as positioning context, hence `relative` above. */}

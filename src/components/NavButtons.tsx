@@ -26,7 +26,8 @@ export function NavButtons({ onBack, onNext, nextLabel = 'Next', onSkip, skipLab
             type="button"
             onClick={onBack}
             whileHover={{ y: -1 }}
-            whileTap={{ scale: 0.97 }}
+            whileTap={{ scale: 0.96 }}
+            transition={{ type: 'spring', stiffness: 320, damping: 24 }}
             className={ghostButtonClass}
           >
             Back
@@ -48,8 +49,8 @@ export function NavButtons({ onBack, onNext, nextLabel = 'Next', onSkip, skipLab
             type="button"
             onClick={onNext}
             whileHover={{ y: -1 }}
-            whileTap={{ scale: 0.97 }}
-            transition={{ type: 'spring', stiffness: 400, damping: 24 }}
+            whileTap={{ scale: 0.96 }}
+            transition={{ type: 'spring', stiffness: 320, damping: 24 }}
             className={primaryButtonClass}
           >
             <span

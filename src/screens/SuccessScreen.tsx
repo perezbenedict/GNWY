@@ -1,6 +1,5 @@
 import { motion } from 'motion/react';
 import type { Variants } from 'motion/react';
-import { CheckCircle2 } from 'lucide-react';
 import { primaryButtonClass, ghostButtonClass } from '../components/NavButtons';
 
 interface SuccessScreenProps {
@@ -10,7 +9,7 @@ interface SuccessScreenProps {
 
 const successContainer: Variants = {
   hidden: {},
-  show: { transition: { staggerChildren: 0.07 } },
+  show: { transition: { staggerChildren: 0.08, delayChildren: 0.55 } },
 };
 
 const successItem: Variants = {
@@ -28,26 +27,39 @@ export function SuccessScreen({ onDone, onSendAnother }: SuccessScreenProps) {
     >
       <div className="relative mb-6">
         <motion.span
-          aria-hidden="true"
-          className="absolute -left-1 -top-1 h-[72px] w-[72px] rounded-full border border-lavender/25"
-          initial={{ scale: 1, opacity: 0.25 }}
-          animate={{ scale: [1, 1.08, 1], opacity: [0.25, 0.08, 0.25] }}
-          transition={{ duration: 4.5, repeat: Infinity, ease: 'easeInOut' }}
-        />
-        <motion.span
           initial={{ scale: 0.6, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           transition={{ type: 'spring', stiffness: 320, damping: 18 }}
           className="relative inline-flex"
         >
-          <CheckCircle2 className="h-16 w-16 text-lime" aria-hidden="true" />
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className="h-16 w-16 text-lime"
+            aria-hidden="true"
+          >
+            <circle cx="12" cy="12" r="10" />
+            <motion.path
+              d="m9 12 2 2 4-4"
+              initial={{ pathLength: 0 }}
+              animate={{ pathLength: 1 }}
+              transition={{ duration: 0.5, ease: 'easeOut' }}
+            />
+          </svg>
         </motion.span>
         <motion.span
           aria-hidden="true"
-          className="absolute left-0 top-0 h-16 w-16 rounded-full border-2 border-lavender"
-          initial={{ scale: 1, opacity: 0.35 }}
-          animate={{ scale: 1.6, opacity: 0 }}
-          transition={{ duration: 0.8, ease: 'easeOut' }}
+          className="pointer-events-none absolute left-0 top-0 h-16 w-16 rounded-full border-2 border-lavender"
+          initial={{ scale: 0.8, opacity: 0.5 }}
+          animate={{ scale: [0.8, 1.6], opacity: [0.5, 0] }}
+          transition={{ duration: 0.9, ease: 'easeOut' }}
         />
       </div>
       <motion.h1
@@ -57,9 +69,9 @@ export function SuccessScreen({ onDone, onSendAnother }: SuccessScreenProps) {
       >
         {'You\u2019re heard. Always. \u{1F49C}'}
       </motion.h1>
-      <p className="mt-4 text-lg leading-relaxed text-muted">
+      <motion.p variants={successItem} className="mt-4 text-lg leading-relaxed text-muted">
         Thanks for keeping it real. Your feedback helps us make GNWY better.
-      </p>
+      </motion.p>
       <div className="mt-8 flex flex-col gap-3 sm:flex-row">
         <motion.button
           type="button"
