@@ -5,6 +5,15 @@ import { Emblem } from '../components/Emblem';
 
 const HEADLINE_WORDS = ['YOUR', 'VOICE.', 'OUR', 'WORSHIP.'];
 const REVEAL_EASE: [number, number, number, number] = [0.16, 1, 0.3, 1];
+// The spotlight gradient reaches full transparency at 70% of its 420px radius;
+// any edge closer than that cuts the fade into a straight line of light.
+const SPOT_FADE_RADIUS = 420 * 0.7;
+const SPOT_EDGE_MARGIN = 8;
+// The spotlight box overhangs 400px above the section but stops at the section
+// bottom (extending below would grow the page's scrollable area), so its
+// gradient sits 200px above the section center; the motion value compensates.
+const SPOT_BOX_TOP_OVERHANG = 400;
+const SPOT_BOX_Y_OFFSET = SPOT_BOX_TOP_OVERHANG / 2;
 
 const EMBLEM_VARIANTS = {
   enter: { opacity: 0, scale: 0.85, y: 10 },
@@ -34,8 +43,21 @@ export function Intro({ onStart }: IntroProps) {
   const handleRootPointerMove = (event: ReactPointerEvent<HTMLElement>) => {
     if (reduceMotion || !rootRef.current) return;
     const rect = rootRef.current.getBoundingClientRect();
-    spotX.set(event.clientX - rect.left - rect.width / 2);
-    spotY.set(event.clientY - rect.top - rect.height / 2);
+    const rawX = event.clientX - rect.left - rect.width / 2;
+    const rawY = event.clientY - rect.top - rect.height / 2;
+    // App's <main> is overflow-x-clip; on wide viewports that edge sits mid-screen,
+    // so clamp the travel to keep the fade inside it. A limit <= 0 means the clip is
+    // the screen edge itself, where a cut is invisible and clamping is pointless.
+    const main = rootRef.current.closest<HTMLElement>('main');
+    const xLimit = main
+      ? main.getBoundingClientRect().width / 2 - SPOT_FADE_RADIUS - SPOT_EDGE_MARGIN
+      : Number.POSITIVE_INFINITY;
+    // Below the section, the box ends at the section bottom (so it adds no page
+    // scroll): stop the circle short of that edge the same way, and offset y back
+    // to the section center to undo the box's asymmetric top overhang.
+    const yLimit = rect.height / 2 - SPOT_FADE_RADIUS - SPOT_EDGE_MARGIN;
+    spotX.set(xLimit <= 0 ? rawX : Math.max(-xLimit, Math.min(xLimit, rawX)));
+    spotY.set(Math.min(rawY, yLimit) + SPOT_BOX_Y_OFFSET);
     spotOpacity.set(1);
   };
 
@@ -64,7 +86,7 @@ export function Intro({ onStart }: IntroProps) {
     <section ref={rootRef} onPointerMove={handleRootPointerMove} className="relative pb-8">
       <motion.div
         aria-hidden
-        className="pointer-events-none absolute inset-0"
+        className="pointer-events-none absolute -left-[400px] -right-[400px] -top-[400px] bottom-0"
         style={{
           background:
             'radial-gradient(420px circle at 50% 50%, rgba(232,199,122,0.12) 0%, transparent 70%)',

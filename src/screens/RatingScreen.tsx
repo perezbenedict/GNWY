@@ -64,17 +64,20 @@ export function RatingScreen({ rating, onSelect, onBack, onNext }: RatingScreenP
         >
           {RATING_OPTIONS.map((option, index) => (
             <motion.div key={option.label} className="w-full" variants={itemVariants}>
-              {/* Pop like a star fill: the chosen option and everything below it. */}
+              {/* Subtle nudge on every filled star; gold halo only on the exact pick. */}
               <motion.div
                 animate={
-                  rating !== null && option.value !== null && rating >= option.value
+                  rating !== null && option.value !== null
                     ? {
-                        scale: [1, 1.18, 1],
-                        boxShadow: [
-                          '0 0 0 rgba(232,199,122,0)',
-                          '0 0 26px rgba(232,199,122,0.5)',
-                          '0 0 0 rgba(232,199,122,0)',
-                        ],
+                        scale: rating >= option.value ? [1, 1.04, 1] : 1,
+                        boxShadow:
+                          rating === option.value
+                            ? [
+                                '0 0 0 rgba(232,199,122,0)',
+                                '0 0 26px rgba(232,199,122,0.5)',
+                                '0 0 0 rgba(232,199,122,0)',
+                              ]
+                            : '0 0 0 rgba(232,199,122,0)',
                       }
                     : { scale: 1, boxShadow: '0 0 0 rgba(232,199,122,0)' }
                 }
