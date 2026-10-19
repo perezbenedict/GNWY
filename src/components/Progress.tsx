@@ -5,6 +5,10 @@ interface ProgressProps {
   total: number;
 }
 
+// gold resting/burst glow mirrors getdroppy.app's dlStepGlow keyframes
+const DOT_GLOW_REST = '0 0 6px rgba(232,199,122,0.4)';
+const DOT_GLOW_BURST = '0 0 22px rgba(232,199,122,0.95)';
+
 export function Progress({ step, total }: ProgressProps) {
   // MotionConfig's reducedMotion only covers transforms/layout, so the width spring needs its own guard
   const reduced = useReducedMotion() === true;
@@ -26,7 +30,7 @@ export function Progress({ step, total }: ProgressProps) {
           </motion.span>
         </AnimatePresence>
       </div>
-      <div className="h-1.5 w-full overflow-hidden rounded-full bg-white/10">
+      <div className="relative h-1.5 w-full overflow-hidden rounded-full bg-white/10">
         <motion.div
           className="relative h-full w-full origin-left rounded-full bg-lavender"
           // Progress remounts per screen, so the fill grows in from zero instead of appearing at width
@@ -34,20 +38,36 @@ export function Progress({ step, total }: ProgressProps) {
           animate={{ width: `${(step / total) * 100}%` }}
           transition={reduced ? { duration: 0 } : { type: 'spring', stiffness: 140, damping: 22 }}
         >
-          <span
+          {/* luminous leading edge; absolutely positioned so the bar's height/footprint is unchanged.
+              y must live in motion's transform (not just -translate-y-1/2) or the inline transform wins. */}
+          <motion.span
             aria-hidden="true"
-            className="absolute inset-0 h-full w-full animate-[shimmer_2.5s_linear_infinite]"
-            style={{
-              background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.25), transparent)',
-              backgroundSize: '200% 100%',
-            }}
-          />
-          {/* luminous leading edge; absolutely positioned so the bar's height/footprint is unchanged */}
-          <span
-            aria-hidden="true"
-            className="absolute right-0 top-1/2 h-0.5 w-0.5 -translate-y-1/2 rounded-full bg-white shadow-[0_0_6px_2px_rgba(255,255,255,0.8)]"
+            className="absolute right-0 top-1/2 h-0.5 w-0.5 -translate-y-1/2 rounded-full bg-white"
+            initial={{ y: '-50%', scale: 1, boxShadow: DOT_GLOW_REST }}
+            animate={
+              reduced
+                ? { y: '-50%', boxShadow: DOT_GLOW_REST }
+                : {
+                    y: '-50%',
+                    scale: [1, 1.8, 1],
+                    boxShadow: [DOT_GLOW_REST, DOT_GLOW_BURST, DOT_GLOW_REST],
+                  }
+            }
+            transition={reduced ? { duration: 0 } : { duration: 0.8, delay: 0.25 }}
           />
         </motion.div>
+        {/* shimmer sweep: sibling of the fill so the fill never clips the dot's glow; track's overflow-hidden masks it */}
+        {!reduced && (
+          <motion.span
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-y-0 w-1/3"
+            style={{
+              background: 'linear-gradient(100deg, transparent, rgba(255,255,255,0.45), transparent)',
+            }}
+            animate={{ x: ['-120%', '420%'] }}
+            transition={{ duration: 1.6, delay: 0.3, repeat: 2, ease: 'linear' }}
+          />
+        )}
       </div>
     </div>
   );

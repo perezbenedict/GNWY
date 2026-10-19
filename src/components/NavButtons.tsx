@@ -26,8 +26,8 @@ export function NavButtons({ onBack, onNext, nextLabel = 'Next', onSkip, skipLab
             type="button"
             onClick={onBack}
             whileHover={{ y: -1 }}
-            whileTap={{ scale: 0.96 }}
-            transition={{ type: 'spring', stiffness: 320, damping: 24 }}
+            whileTap={{ scale: 0.94 }}
+            transition={{ type: 'spring', stiffness: 460, damping: 17, mass: 0.7 }}
             className={ghostButtonClass}
           >
             Back
@@ -49,8 +49,18 @@ export function NavButtons({ onBack, onNext, nextLabel = 'Next', onSkip, skipLab
             type="button"
             onClick={onNext}
             whileHover={{ y: -1 }}
-            whileTap={{ scale: 0.96 }}
-            transition={{ type: 'spring', stiffness: 320, damping: 24 }}
+            whileTap={{
+              scale: 0.94,
+              // Resting→bright gold glow. The Tailwind ring vars must stay inside the
+              // shadow: motion writes the animated value inline, and an inline box-shadow
+              // would otherwise hide the focus-visible ring (inline beats the class).
+              boxShadow:
+                'var(--tw-ring-offset-shadow), var(--tw-ring-shadow), 0 0 24px rgba(232,199,122,0.55)',
+            }}
+            transition={{ type: 'spring', stiffness: 460, damping: 17, mass: 0.7 }}
+            style={{
+              boxShadow: 'var(--tw-ring-offset-shadow), var(--tw-ring-shadow), 0 0 12px rgba(232,199,122,0.25)',
+            }}
             className={primaryButtonClass}
           >
             <span
@@ -60,6 +70,21 @@ export function NavButtons({ onBack, onNext, nextLabel = 'Next', onSkip, skipLab
                 background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent)',
                 // resting off-screen so the band never shows before/after the sweep (or under reduced motion)
                 transform: 'translateX(-120%) skewX(-18deg)',
+              }}
+            />
+            {/* Living gloss, always mounted (button has no disabled state); root keeps it clipped. */}
+            <motion.span
+              aria-hidden="true"
+              className="pointer-events-none absolute inset-0 z-0"
+              style={{
+                background: 'linear-gradient(110deg, transparent 32%, rgba(232,199,122,0.38) 50%, transparent 68%)',
+                backgroundSize: '220% 100%',
+                backgroundPosition: '220% 0',
+              }}
+              animate={{ backgroundPosition: ['220% 0', '-20% 0'], opacity: 0.25 }}
+              transition={{
+                backgroundPosition: { duration: 2.6, repeat: Infinity, ease: 'linear' },
+                opacity: { duration: 0.3 },
               }}
             />
             <span className="relative z-10">{nextLabel}</span>

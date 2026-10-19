@@ -27,8 +27,10 @@ export function OptionCard({
   onKeyDown,
   highlighted = false,
 }: OptionCardProps) {
+  // overflow-hidden clips the sheen to the rounded corners; the focus ring is a
+  // box-shadow on this same element, which its own overflow never clips.
   const base =
-    'relative flex w-full items-center justify-between gap-3 break-words rounded-card border px-4 py-3.5 text-left text-sm font-medium transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-lavender focus-visible:ring-offset-2 focus-visible:ring-offset-midnight sm:text-base min-h-[48px]';
+    'relative flex w-full items-center justify-between gap-3 break-words rounded-card border px-4 py-3.5 text-left text-sm font-medium transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-lavender focus-visible:ring-offset-2 focus-visible:ring-offset-midnight sm:text-base min-h-[48px] overflow-hidden';
   const state = selected
     ? 'border-lavender bg-lavender/15 text-ink'
     : highlighted
@@ -50,12 +52,13 @@ export function OptionCard({
       tabIndex={tabIndex}
       onKeyDown={onKeyDown}
       onClick={onSelect}
-      whileHover={{ y: -2 }}
-      whileTap={{ scale: 0.97 }}
+      whileHover={{ y: -3 }}
+      // Morph-tap: hard squash (0.94) with a fast, bouncy release spring.
+      whileTap={{ scale: 0.94 }}
       // Unselected rests at 0.985 so selection springs 0.985 → 1 even for
       // keyboard-triggered clicks (no whileTap involved). Transform-only: no layout shift.
       animate={{ scale: selected ? 1 : 0.985 }}
-      transition={{ type: 'spring', stiffness: 300, damping: 22 }}
+      transition={{ type: 'spring', stiffness: 460, damping: 17, mass: 0.7 }}
       className={`${base} ${state}`}
     >
       {/* Gold flash; needs the button as positioning context, hence `relative` above. */}
@@ -65,6 +68,21 @@ export function OptionCard({
         style={{ background: 'radial-gradient(circle at center, rgba(232,199,122,0.18), transparent 70%)' }}
         animate={{ opacity: selected ? 1 : 0 }}
         transition={{ duration: 0.35 }}
+      />
+      {/* Traveling sheen stays mounted; selection only gates opacity so there's no unmount flicker. */}
+      <motion.div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 rounded-[inherit]"
+        style={{
+          background: 'linear-gradient(110deg, transparent 32%, rgba(232,199,122,0.38) 50%, transparent 68%)',
+          backgroundSize: '220% 100%',
+          backgroundPosition: '220% 0',
+        }}
+        animate={{ backgroundPosition: ['220% 0', '-20% 0'], opacity: selected ? 1 : 0 }}
+        transition={{
+          backgroundPosition: { duration: 2.2, repeat: Infinity, ease: 'linear' },
+          opacity: { duration: 0.3 },
+        }}
       />
       <span className="min-w-0 flex-1 text-left break-words">
         {head}

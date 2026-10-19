@@ -20,6 +20,10 @@ interface TextFieldProps {
   inputRef?: FieldRef;
 }
 
+// motion's whileFocus boxShadow keyframes embed Tailwind's ring vars so the focus ring stays visible through the glow
+const GLOW_OFF = 'var(--tw-ring-offset-shadow), var(--tw-ring-shadow), 0px 0px 0px rgba(232,199,122,0)';
+const GLOW_ON = 'var(--tw-ring-offset-shadow), var(--tw-ring-shadow), 0px 0px 18px rgba(232,199,122,0.35)';
+
 export function TextField({
   label,
   placeholder,
@@ -50,7 +54,7 @@ export function TextField({
         <span>{label}</span>
         {optional && <span className="text-xs font-normal text-muted">optional</span>}
       </label>
-      {/* focus emphasis is transform-only so the Tailwind ring keeps driving the glow and nothing reflows */}
+      {/* focus emphasis is scale + a gold box-shadow glow; boxShadow keyframes carry the ring vars so the Tailwind ring survives */}
       {multiline ? (
         <motion.textarea
           id={id}
@@ -61,7 +65,8 @@ export function TextField({
           maxLength={maxLength}
           onFocus={handleFocus}
           onChange={(event) => onChange(event.target.value)}
-          whileFocus={{ scale: 1.012 }}
+          style={{ boxShadow: GLOW_OFF }}
+          whileFocus={{ scale: 1.02, boxShadow: [GLOW_OFF, GLOW_ON] }}
           transition={{ type: 'spring', stiffness: 320, damping: 24 }}
         />
       ) : (
@@ -76,7 +81,8 @@ export function TextField({
           maxLength={maxLength}
           onFocus={handleFocus}
           onChange={(event) => onChange(event.target.value)}
-          whileFocus={{ scale: 1.012 }}
+          style={{ boxShadow: GLOW_OFF }}
+          whileFocus={{ scale: 1.02, boxShadow: [GLOW_OFF, GLOW_ON] }}
           transition={{ type: 'spring', stiffness: 320, damping: 24 }}
         />
       )}

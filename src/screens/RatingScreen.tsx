@@ -9,12 +9,12 @@ import type { Answers } from '../types';
 
 const containerVariants: Variants = {
   hidden: {},
-  show: { transition: { staggerChildren: 0.05, delayChildren: 0.12 } },
+  show: { transition: { staggerChildren: 0.07, delayChildren: 0.15 } },
 };
 
 const itemVariants: Variants = {
-  hidden: { opacity: 0, y: 12 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.45, ease: [0.16, 1, 0.3, 1] } },
+  hidden: { opacity: 0, y: 20, scale: 0.97 },
+  show: { opacity: 1, y: 0, scale: 1, transition: { duration: 0.5, ease: [0.16, 1, 0.3, 1] } },
 };
 
 export const RATING_OPTIONS: ReadonlyArray<{ label: string; value: Answers['rating'] }> = [
@@ -66,8 +66,19 @@ export function RatingScreen({ rating, onSelect, onBack, onNext }: RatingScreenP
             <motion.div key={option.label} className="w-full" variants={itemVariants}>
               {/* Pop like a star fill: the chosen option and everything below it. */}
               <motion.div
-                animate={{ scale: rating !== null && option.value !== null && rating >= option.value ? [1, 1.12, 1] : 1 }}
-                transition={{ duration: 0.35 }}
+                animate={
+                  rating !== null && option.value !== null && rating >= option.value
+                    ? {
+                        scale: [1, 1.18, 1],
+                        boxShadow: [
+                          '0 0 0 rgba(232,199,122,0)',
+                          '0 0 26px rgba(232,199,122,0.5)',
+                          '0 0 0 rgba(232,199,122,0)',
+                        ],
+                      }
+                    : { scale: 1, boxShadow: '0 0 0 rgba(232,199,122,0)' }
+                }
+                transition={{ duration: 0.4 }}
               >
                 <OptionCard
                   variant="radio"

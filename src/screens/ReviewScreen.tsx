@@ -56,14 +56,14 @@ export function ReviewScreen({ answers, submitting, submitFailed, error, onSubmi
             className="flex flex-col gap-2.5"
             initial="hidden"
             animate="show"
-            variants={{ hidden: {}, show: { transition: { staggerChildren: 0.06, delayChildren: 0.1 } } }}
+            variants={{ hidden: {}, show: { transition: { staggerChildren: 0.08, delayChildren: 0.12 } } }}
           >
             {rows.map((row) => (
               <motion.li
                 key={row.label}
                 variants={{
-                  hidden: { opacity: 0, y: 12 },
-                  show: { opacity: 1, y: 0, transition: { duration: 0.45, ease: [0.16, 1, 0.3, 1] } },
+                  hidden: { opacity: 0, y: 22, scale: 0.97 },
+                  show: { opacity: 1, y: 0, scale: 1, transition: { duration: 0.5, ease: [0.16, 1, 0.3, 1] } },
                 }}
                 whileHover={{ x: 2, transition: { duration: 0.18 } }}
                 className="relative"
@@ -108,9 +108,9 @@ export function ReviewScreen({ answers, submitting, submitFailed, error, onSubmi
             </div>
           )}
           <motion.div
-            initial={{ opacity: 0, y: 12 }}
+            initial={{ opacity: 0, y: 22 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1], delay: 0.4 }}
+            transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1], delay: 0.5 }}
             className="flex flex-col gap-3 sm:flex-row sm:items-center"
           >
             <button type="button" onClick={onBack} className={`${ghostButtonClass} order-2 w-full sm:order-1 sm:w-auto`}>
@@ -125,17 +125,33 @@ export function ReviewScreen({ answers, submitting, submitFailed, error, onSubmi
               transition={{ type: 'spring', stiffness: 400, damping: 24 }}
               className={`${primaryButtonClass} order-1 w-full disabled:cursor-not-allowed disabled:opacity-60 sm:order-2 sm:w-auto`}
             >
-              {submitting ? (
-                <>
-                  <Loader2 className="h-4 w-4 flex-shrink-0 animate-spin" aria-hidden="true" />
-                  Sending…
-                </>
-              ) : (
-                <>
-                  <Rocket className="h-4 w-4 flex-shrink-0" aria-hidden="true" />
-                  Send my feedback &#x1F680;
-                </>
-              )}
+              {/* sheen lives under the label (z-10) and hides while sending */}
+              <motion.span
+                aria-hidden="true"
+                className="pointer-events-none absolute inset-0 z-0"
+                style={{
+                  background: 'linear-gradient(110deg, transparent 34%, rgba(255,255,255,0.4) 50%, transparent 66%)',
+                }}
+                initial={{ x: '-40%', opacity: submitting ? 0 : 1 }}
+                animate={{ x: ['-40%', '140%'], opacity: submitting ? 0 : 1 }}
+                transition={{
+                  x: { duration: 2.4, repeat: Infinity, ease: 'linear' },
+                  opacity: { duration: 0.2 },
+                }}
+              />
+              <span className="relative z-10 flex items-center justify-center gap-2">
+                {submitting ? (
+                  <>
+                    <Loader2 className="h-4 w-4 flex-shrink-0 animate-spin" aria-hidden="true" />
+                    Sending…
+                  </>
+                ) : (
+                  <>
+                    <Rocket className="h-4 w-4 flex-shrink-0" aria-hidden="true" />
+                    Send my feedback &#x1F680;
+                  </>
+                )}
+              </span>
             </motion.button>
           </motion.div>
         </div>

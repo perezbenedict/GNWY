@@ -18,15 +18,16 @@ import { SuccessScreen } from './screens/SuccessScreen';
 import { Emblem } from './components/Emblem';
 
 const forwardVariants: Variants = {
-  enter: { opacity: 0, x: 36, scale: 0.985 },
-  center: { opacity: 1, x: 0, scale: 1 },
-  exit: { opacity: 0, x: -36, scale: 0.985 },
+  enter: { opacity: 0, x: 72, y: 10, scale: 0.955 },
+  center: { opacity: 1, x: 0, y: 0, scale: 1 },
+  exit: { opacity: 0, x: -72, y: -8, scale: 0.955 },
 };
 
+// Backward mirrors x only; y keeps the up-out / down-in page-turn diagonal.
 const backwardVariants: Variants = {
-  enter: { opacity: 0, x: -36, scale: 0.985 },
-  center: { opacity: 1, x: 0, scale: 1 },
-  exit: { opacity: 0, x: 36, scale: 0.985 },
+  enter: { opacity: 0, x: -72, y: 10, scale: 0.955 },
+  center: { opacity: 1, x: 0, y: 0, scale: 1 },
+  exit: { opacity: 0, x: 72, y: -8, scale: 0.955 },
 };
 
 // Soft glow blobs rearrange per step; x/y deltas keep motion transform-only (safe under reduced motion).
@@ -269,7 +270,7 @@ export default function App() {
           initial="enter"
           animate="center"
           exit="exit"
-          transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
+          transition={{ duration: 0.55, ease: [0.16, 1, 0.3, 1] }}
         >
           {screen}
         </motion.div>
